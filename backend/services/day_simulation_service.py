@@ -11,7 +11,7 @@ from models.customer import Customer
 from models.order import Order, OrderItem
 from models.marketing import (
     SimulationState, DailyDecision, PlatformAllocation,
-    ResearchProject,
+    ResearchProject, ProductIteration,
 )
 from services.platform_ai_service import allocate_customers
 from ai.provider_registry import get_provider
@@ -437,6 +437,8 @@ async def _process_research(db, decisions, day):
                         merchant_ai=ai_model,
                         category=decision.get("category", ""),
                         product_name=name,
+                        new_description=research.get("description", ""),
+                        new_price=research.get("price", 0.0),
                         days_total=days,
                         days_remaining=days,
                         status="active",
@@ -453,7 +455,30 @@ async def _process_research(db, decisions, day):
         if project.days_remaining <= 0:
             project.status = "completed"
             project.completed_day = day
-            # 研发完成，可以在这里触发新品上架逻辑
+
+            # 查找该 AI 商家对应的产品
+            product_result = (await db.execute(
+                select(Product)
+                .where(Product.ai_model == project.merchant_ai)
+            )).scalars().first()
+
+            if product_result:
+                # 记录迭代快照
+                db.add(ProductIteration(
+                    merchant_ai=project.merchant_ai,
+                    day=day,
+                    old_name=product_result.name,
+                    new_name=project.product_name,
+                    old_description=product_result.description,
+                    new_description=project.new_description,
+                    old_price=float(product_result.price),
+                    new_price=project.new_price,
+                ))
+                # 更新产品
+                product_result.name = project.product_name
+                product_result.description = project.new_description
+                product_result.price = project.new_price
+                product_result.original_price = project.new_price
 
 
 async def _check_platform_suggestions(db, rankings, day):
