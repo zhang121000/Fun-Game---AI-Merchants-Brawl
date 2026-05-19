@@ -59,9 +59,10 @@ async def seed_data_if_empty():
             with open(gen_config_path, encoding="utf-8") as f:
                 gen_config = json.load(f)
             stat_users = _generate_statistical_users(gen_config, len(customers_data))
-            for u in stat_users:
-                db.add(Customer(**u, is_star=False))
-            print(f"✅ 批量生成 {len(stat_users)} 个统计用户")
+            if stat_users:
+                from sqlalchemy import insert as sql_insert
+                await db.execute(sql_insert(Customer), stat_users)
+                print(f"✅ 批量生成 {len(stat_users)} 个统计用户")
 
         # 购买模拟配置（新的人群分类）
         configs = [
@@ -102,22 +103,20 @@ def _generate_statistical_users(config: dict, existing_count: int) -> list[dict]
     for demo_name, demo_cfg in config["demographics"].items():
         count = round(demo_cfg["count"] * target / total_configured)
         pw_cfg = demo_cfg["purchase_weight"]
+        age_options = demo_cfg["age_range"]
+        pref_items = list(demo_cfg["preferences"].items())
 
         for _ in range(count):
-            pw = rng.gauss(pw_cfg["mean"], pw_cfg["std"])
-            pw = round(max(0.5, min(3.0, pw)), 2)
-
-            prefs = {}
-            for cat, dist in demo_cfg["preferences"].items():
-                val = rng.gauss(dist["mean"], dist["std"])
-                prefs[cat] = round(max(0.1, min(1.0, val)), 2)
-
             users.append({
                 "name": None,
                 "demographic": demo_name,
-                "age_range": rng.choice(demo_cfg["age_range"]),
-                "purchase_weight": pw,
-                "preferences": prefs,
+                "age_range": rng.choice(age_options),
+                "purchase_weight": round(max(0.5, min(3.0, rng.gauss(pw_cfg["mean"], pw_cfg["std"]))), 2),
+                "preferences": {
+                    cat: round(max(0.1, min(1.0, rng.gauss(dist["mean"], dist["std"]))), 2)
+                    for cat, dist in pref_items
+                },
+                "is_star": False,
             })
 
     return users
