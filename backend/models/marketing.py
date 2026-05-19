@@ -122,3 +122,19 @@ class ResearchProject(Base):
     started_day: Mapped[int] = mapped_column(Integer)
     completed_day: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+class ProductIteration(Base):
+    """产品迭代快照 — 记录每次研发完成时的产品变化"""
+    __tablename__ = "product_iterations"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    merchant_ai: Mapped[str] = mapped_column(String(50))
+    day: Mapped[int] = mapped_column(Integer)
+    old_name: Mapped[str] = mapped_column(String(200))
+    new_name: Mapped[str] = mapped_column(String(200))
+    old_description: Mapped[str] = mapped_column(Text, default="")
+    new_description: Mapped[str] = mapped_column(Text, default="")
+    old_price: Mapped[float] = mapped_column(Float)
+    new_price: Mapped[float] = mapped_column(Float)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
