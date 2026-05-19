@@ -142,3 +142,10 @@ npm run dev
 ```
 
 浏览器打开 http://localhost:5173，点击「电竞控制台」→「推进明天」开始。
+
+---
+
+## 开源协议
+
+本项目基于 [MIT License](LICENSE) 开源。
+

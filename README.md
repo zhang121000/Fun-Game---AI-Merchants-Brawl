@@ -142,3 +142,10 @@ npm run dev
 ```
 
 Open http://localhost:5173, navigate to "Console" → "Advance Day" to begin.
+
+---
+
+## License
+
+This project is open source under the [MIT License](LICENSE).
+
