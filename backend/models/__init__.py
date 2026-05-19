@@ -3,7 +3,7 @@ from models.product import Product
 from models.customer import Customer
 from models.order import Order, OrderItem
 from models.cart import Cart, CartItem
-from models.marketing import MarketingStrategy, PurchaseSimulationConfig
+from models.marketing import MarketingStrategy, PurchaseSimulationConfig, ResearchProject, DailyDecision, PlatformAllocation, SimulationState, ProductIteration
 from models.analytics import AnalyticsSnapshot
 
 __all__ = [
@@ -11,5 +11,7 @@ __all__ = [
     "Order", "OrderItem",
     "Cart", "CartItem",
     "MarketingStrategy", "PurchaseSimulationConfig",
+    "ResearchProject", "DailyDecision", "PlatformAllocation", "SimulationState",
+    "ProductIteration",
     "AnalyticsSnapshot",
 ]
