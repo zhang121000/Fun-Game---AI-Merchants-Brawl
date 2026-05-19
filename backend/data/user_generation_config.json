@@ -1,10 +1,10 @@
 {
-  "total_users": 5000,
+  "total_users": 100000,
   "traffic_pool": 500,
   "random_seed": 42,
   "demographics": {
     "child": {
-      "count": 900,
+      "count": 18000,
       "age_range": ["0-6", "6-14", "3-10"],
       "purchase_weight": { "mean": 2.0, "std": 0.5 },
       "preferences": {
@@ -15,7 +15,7 @@
       }
     },
     "youth": {
-      "count": 1500,
+      "count": 30000,
       "age_range": ["20-30", "25-35", "22-32", "28-35"],
       "purchase_weight": { "mean": 2.0, "std": 0.4 },
       "preferences": {
@@ -27,7 +27,7 @@
       }
     },
     "middle": {
-      "count": 1750,
+      "count": 35000,
       "age_range": ["36-45", "40-50", "45-55", "38-48", "42-52"],
       "purchase_weight": { "mean": 1.9, "std": 0.4 },
       "preferences": {
@@ -39,7 +39,7 @@
       }
     },
     "elderly": {
-      "count": 850,
+      "count": 17000,
       "age_range": ["55-65", "60-70", "65-75", "70-80"],
       "purchase_weight": { "mean": 1.7, "std": 0.4 },
       "preferences": {
