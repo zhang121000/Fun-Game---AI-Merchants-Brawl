@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Typography, Spin, Select, Tag, Space, Tabs } from 'antd'
 import ReactECharts from 'echarts-for-react'
 import client from '../api/client'
@@ -17,10 +17,6 @@ const DEMO_LABELS: Record<string, string> = {
 const DEMO_COLORS: Record<string, string> = {
   elderly: '#fa541c', youth: '#2f54eb', middle: '#722ed1', child: '#52c41a',
 }
-const CATEGORY_COLORS: Record<string, string> = {
-  '蛋白粉': '#6366f1', '维生素': '#10b981', '钙片': '#f59e0b',
-  '益生菌': '#ef4444', '鱼油': '#3b82f6',
-}
 
 interface SalesTrendPoint { date: string; orders: number; revenue: number }
 interface DemoDist { demographic: string; count: number; revenue: number }
@@ -33,10 +29,39 @@ export default function AnalyticsBoard() {
   const [trendData, setTrendData] = useState<{ days: number[]; series: Record<string, number[]> }>({ days: [], series: {} })
   const [dimension, setDimension] = useState<string>('ai')
   const [demoDist, setDemoDist] = useState<DemoDist[]>([])
+  const [categoryDemoData, setCategoryDemoData] = useState<DemoDist[]>([])
+  const [demoCategory, setDemoCategory] = useState<string>('all')
   const [products, setProducts] = useState<ProductCompare[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => { loadData() }, [dimension])
+
+  // 品类 → product_id 映射
+  const categoryProductMap = useMemo(() => {
+    const map: Record<string, number> = {}
+    products.forEach(p => { map[p.category] = p.product_id })
+    return map
+  }, [products])
+
+  // AI → 品类名映射（趋势图例用）
+  const aiCategoryMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    products.forEach(p => { map[p.ai_model] = p.category })
+    return map
+  }, [products])
+
+  // 切换品类时加载该品类的购买人群分布
+  useEffect(() => {
+    if (demoCategory === 'all') {
+      setCategoryDemoData([])
+      return
+    }
+    const pid = categoryProductMap[demoCategory]
+    if (!pid) return
+    client.get(`/analytics/product/${pid}/demographic-breakdown`)
+      .then(res => setCategoryDemoData(res.data))
+      .catch(() => setCategoryDemoData([]))
+  }, [demoCategory, categoryProductMap])
 
   async function loadData() {
     setLoading(true)
@@ -56,11 +81,12 @@ export default function AnalyticsBoard() {
   // 计算趋势图的系列
   const allDays = trendData.days || []
   const trendSeries = Object.entries(trendData.series || {}).map(([key, values]) => {
-    const colorMap: Record<string, string> = {
-      ...AI_COLORS, ...DEMO_COLORS, ...CATEGORY_COLORS,
-    }
+    const colorMap: Record<string, string> = { ...AI_COLORS, ...DEMO_COLORS }
+    const label = AI_LABELS[key] || DEMO_LABELS[key] || key
+    const categoryLabel = aiCategoryMap[key]
+    const displayName = dimension === 'ai' && categoryLabel ? `${label} · ${categoryLabel}` : label
     return {
-      name: AI_LABELS[key] || DEMO_LABELS[key] || key,
+      name: displayName,
       type: 'line' as const,
       data: values,
       smooth: true,
@@ -94,10 +120,12 @@ export default function AnalyticsBoard() {
   }
 
   const DIM_TABS = [
-    { key: 'ai', label: '按 AI 商家' },
-    { key: 'category', label: '按品类' },
+    { key: 'ai', label: '按商家' },
     { key: 'demographic', label: '按人群' },
   ]
+
+  // 人群购买饼图数据源
+  const pieSource = demoCategory === 'all' ? demoDist : categoryDemoData
 
   // 人群购买饼图
   const pieOption = {
@@ -105,7 +133,7 @@ export default function AnalyticsBoard() {
     legend: { bottom: 0 },
     series: [{
       type: 'pie', radius: ['40%', '70%'],
-      data: demoDist.map(d => ({
+      data: pieSource.map(d => ({
         name: DEMO_LABELS[d.demographic] || d.demographic, value: d.count,
         itemStyle: { color: DEMO_COLORS[d.demographic] },
       })),
@@ -197,8 +225,22 @@ export default function AnalyticsBoard() {
           background: '#ffffff', border: '1px solid #e0e0e0',
           borderRadius: 18, padding: 32,
         }}>
-          <h2 style={{ fontSize: 21, fontWeight: 600, marginBottom: 16 }}>购买人群分布</h2>
-          {demoDist.length > 0
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h2 style={{ fontSize: 21, fontWeight: 600, margin: 0 }}>购买人群分布</h2>
+            <Select
+              value={demoCategory}
+              onChange={setDemoCategory}
+              style={{ width: 120 }}
+              size="small"
+              popupMatchSelectWidth={false}
+            >
+              <Option value="all">全部品类</Option>
+              {products.map(p => (
+                <Option key={p.category} value={p.category}>{p.category}</Option>
+              ))}
+            </Select>
+          </div>
+          {pieSource.length > 0
             ? <ReactECharts option={pieOption} style={{ height: 300 }} />
             : <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7a7a' }}>暂无数据</div>
           }
