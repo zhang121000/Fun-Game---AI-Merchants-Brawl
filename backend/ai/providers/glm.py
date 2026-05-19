@@ -8,5 +8,5 @@ class GLMProvider(OpenAICompatibleProvider):
         super().__init__(
             api_key=api_key,
             base_url="https://api.edgefn.net/v1",
-            model_name="GLM-5",
+            model_name="GLM-4.7",
         )
