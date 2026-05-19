@@ -9,7 +9,7 @@ from models.customer import Customer
 from models.product import Product
 from models.marketing import (
     MarketingStrategy, SimulationState, DailyDecision,
-    PlatformAllocation, ResearchProject,
+    PlatformAllocation, ResearchProject, ProductIteration,
 )
 
 router = APIRouter()
@@ -151,6 +151,7 @@ async def admin_reset(db: AsyncSession = Depends(get_db)):
     await db.execute(delete(DailyDecision))
     await db.execute(delete(PlatformAllocation))
     await db.execute(delete(ResearchProject))
+    await db.execute(delete(ProductIteration))
     await db.execute(delete(SimulationState))
 
     # 恢复产品库存
@@ -378,3 +379,31 @@ async def generate_strategies(db: AsyncSession = Depends(get_db)):
         "pending_approval": pending,
         "message": f"生成 {len(results)} 条策略：{auto} 条自动执行，{pending} 条待审批"
     }
+
+
+@router.get("/admin/product-iterations")
+async def product_iterations(
+    merchant_ai: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """获取指定 AI 商家的产品迭代历史，按时间从近到远排列"""
+    iterations = (await db.execute(
+        select(ProductIteration)
+        .where(ProductIteration.merchant_ai == merchant_ai)
+        .order_by(ProductIteration.day.desc())
+    )).scalars().all()
+
+    return [
+        {
+            "id": it.id,
+            "merchant_ai": it.merchant_ai,
+            "day": it.day,
+            "old_name": it.old_name,
+            "new_name": it.new_name,
+            "old_description": it.old_description,
+            "new_description": it.new_description,
+            "old_price": it.old_price,
+            "new_price": it.new_price,
+        }
+        for it in iterations
+    ]
