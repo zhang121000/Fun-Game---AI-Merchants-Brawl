@@ -20,6 +20,8 @@
 
 每个 AI 独立运行，使用各自的 API 接口，互不共享数据和策略。
 
+![产品总览](docs/images/products.png)
+
 ---
 
 ## 顾客池（5000+ 模拟用户）
@@ -113,6 +115,8 @@ AI 的提示词包含：昨日销量、昨日收入、7 天平均、排名趋势
 - 📦 **进货管理**：批量或单件进货
 - 🔄 **一键重置**：清空所有模拟数据，从第 0 天重新开始
 
+![AI 竞争控制台](docs/images/admin-console.png)
+
 ---
 
 ## 技术实现
@@ -123,6 +127,8 @@ AI 的提示词包含：昨日销量、昨日收入、7 天平均、排名趋势
 | 前端 | React 18 · TypeScript · Vite · Ant Design 5 · ECharts |
 | AI | DeepSeek · GPT-4o · 豆包 · MiMo · 通义千问（OpenAI 兼容协议） |
 | 状态管理 | Zustand · axios 拦截器统一错误处理 |
+
+![数据看板](docs/images/analytics.png)
 
 ---
 
