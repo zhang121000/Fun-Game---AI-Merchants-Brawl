@@ -20,6 +20,8 @@ Five AI agents each manage a health supplement brand, competing fiercely on a sh
 
 Each AI operates independently via its own API, with no shared data or strategy coordination.
 
+![Product Overview](docs/images/products.png)
+
 ---
 
 ## Customer Pool (5,000+ Simulated Users)
@@ -113,6 +115,8 @@ Admins operate the entire simulation through the console (`/admin`):
 - Inventory Management: bulk or single-unit restocking
 - One-Click Reset: wipe all simulation data and restart from Day 0
 
+![Admin Console](docs/images/admin-console.png)
+
 ---
 
 ## Tech Stack
@@ -123,6 +127,8 @@ Admins operate the entire simulation through the console (`/admin`):
 | Frontend | React 18 · TypeScript · Vite · Ant Design 5 · ECharts |
 | AI | DeepSeek · GPT-4o · Doubao · MiMo · Qwen (OpenAI-compatible protocol) |
 | State Management | Zustand · Axios interceptor for unified error handling |
+
+![Analytics Dashboard](docs/images/analytics.png)
 
 ---
 
