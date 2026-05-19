@@ -1,0 +1,93 @@
+/* Apple Design System — Global Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+    'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.022em;
+  color: #1d1d1f;
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue',
+    'PingFang SC', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1.1;
+  color: #1d1d1f;
+}
+
+a {
+  color: #0066cc;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #0071e3;
+}
+
+/* Apple pill button override */
+.ant-btn-primary {
+  border-radius: 9999px !important;
+  font-weight: 400 !important;
+  font-size: 17px !important;
+  height: 44px !important;
+  padding: 0 22px !important;
+  box-shadow: none !important;
+  border: none !important;
+  transition: transform 0.15s ease, background-color 0.2s !important;
+}
+
+.ant-btn-primary:active {
+  transform: scale(0.95) !important;
+}
+
+.ant-btn-default {
+  border-radius: 9999px !important;
+  font-weight: 400 !important;
+  font-size: 17px !important;
+  height: 44px !important;
+  padding: 0 22px !important;
+  box-shadow: none !important;
+  border: 1px solid #0066cc !important;
+  color: #0066cc !important;
+  transition: transform 0.15s ease !important;
+}
+
+.ant-btn-default:active {
+  transform: scale(0.95) !important;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d2d2d7;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a6;
+}
+
+/* Remove Ant Design's default shadows */
+.ant-card {
+  box-shadow: none !important;
+}
+.ant-card-bordered {
+  border: 1px solid #e0e0e0 !important;
+}

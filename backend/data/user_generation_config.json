@@ -1,0 +1,53 @@
+{
+  "total_users": 5000,
+  "traffic_pool": 500,
+  "random_seed": 42,
+  "demographics": {
+    "child": {
+      "count": 900,
+      "age_range": ["0-6", "6-14", "3-10"],
+      "purchase_weight": { "mean": 2.0, "std": 0.5 },
+      "preferences": {
+        "益生菌": { "mean": 0.8, "std": 0.1 },
+        "维生素": { "mean": 0.7, "std": 0.15 },
+        "钙片":   { "mean": 0.7, "std": 0.15 },
+        "鱼油":   { "mean": 0.3, "std": 0.1 }
+      }
+    },
+    "youth": {
+      "count": 1500,
+      "age_range": ["20-30", "25-35", "22-32", "28-35"],
+      "purchase_weight": { "mean": 2.0, "std": 0.4 },
+      "preferences": {
+        "蛋白粉":   { "mean": 0.8, "std": 0.1 },
+        "胶原蛋白": { "mean": 0.75, "std": 0.15 },
+        "维生素":   { "mean": 0.6, "std": 0.15 },
+        "益生菌":   { "mean": 0.6, "std": 0.15 },
+        "鱼油":     { "mean": 0.4, "std": 0.15 }
+      }
+    },
+    "middle": {
+      "count": 1750,
+      "age_range": ["36-45", "40-50", "45-55", "38-48", "42-52"],
+      "purchase_weight": { "mean": 1.9, "std": 0.4 },
+      "preferences": {
+        "鱼油":     { "mean": 0.85, "std": 0.1 },
+        "维生素":   { "mean": 0.75, "std": 0.1 },
+        "钙片":     { "mean": 0.7, "std": 0.15 },
+        "蛋白粉":   { "mean": 0.5, "std": 0.15 },
+        "胶原蛋白": { "mean": 0.6, "std": 0.15 }
+      }
+    },
+    "elderly": {
+      "count": 850,
+      "age_range": ["55-65", "60-70", "65-75", "70-80"],
+      "purchase_weight": { "mean": 1.7, "std": 0.4 },
+      "preferences": {
+        "钙片":   { "mean": 0.9, "std": 0.08 },
+        "鱼油":   { "mean": 0.85, "std": 0.1 },
+        "维生素": { "mean": 0.8, "std": 0.1 },
+        "益生菌": { "mean": 0.5, "std": 0.15 }
+      }
+    }
+  }
+}

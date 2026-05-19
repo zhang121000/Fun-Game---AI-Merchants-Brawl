@@ -1,0 +1,22 @@
+[
+  {"demographic": "child", "name": "小明妈妈", "age_range": "0-6", "preferences": {"益生菌": 0.9, "维生素": 0.8, "钙片": 0.7}, "purchase_weight": 2.5},
+  {"demographic": "child", "name": "小红爸爸", "age_range": "6-14", "preferences": {"维生素": 0.9, "钙片": 0.8, "益生菌": 0.6}, "purchase_weight": 2.2},
+  {"demographic": "child", "name": "豆豆奶奶", "age_range": "3-10", "preferences": {"益生菌": 0.8, "维生素": 0.7, "鱼油": 0.5}, "purchase_weight": 2.0},
+
+  {"demographic": "youth", "name": "林小美", "age_range": "25-35", "preferences": {"胶原蛋白": 0.9, "维生素": 0.7, "益生菌": 0.5}, "purchase_weight": 2.2},
+  {"demographic": "youth", "name": "陈佳佳", "age_range": "20-30", "preferences": {"蛋白粉": 0.9, "维生素": 0.6, "益生菌": 0.5}, "purchase_weight": 2.0},
+  {"demographic": "youth", "name": "刘强", "age_range": "25-35", "preferences": {"蛋白粉": 0.9, "鱼油": 0.6, "维生素": 0.5}, "purchase_weight": 2.2},
+  {"demographic": "youth", "name": "张小芳", "age_range": "22-32", "preferences": {"胶原蛋白": 0.8, "益生菌": 0.7, "维生素": 0.6}, "purchase_weight": 1.8},
+  {"demographic": "youth", "name": "王磊", "age_range": "28-35", "preferences": {"蛋白粉": 0.8, "维生素": 0.6, "鱼油": 0.5}, "purchase_weight": 1.9},
+
+  {"demographic": "middle", "name": "周大伟", "age_range": "40-50", "preferences": {"鱼油": 0.9, "维生素": 0.7, "钙片": 0.6}, "purchase_weight": 2.0},
+  {"demographic": "middle", "name": "赵思琪", "age_range": "36-45", "preferences": {"胶原蛋白": 0.8, "维生素": 0.7, "益生菌": 0.5}, "purchase_weight": 1.8},
+  {"demographic": "middle", "name": "孙建国", "age_range": "45-55", "preferences": {"鱼油": 0.9, "钙片": 0.8, "维生素": 0.7}, "purchase_weight": 2.1},
+  {"demographic": "middle", "name": "李芳", "age_range": "38-48", "preferences": {"维生素": 0.8, "胶原蛋白": 0.7, "钙片": 0.6}, "purchase_weight": 1.9},
+  {"demographic": "middle", "name": "王建华", "age_range": "42-52", "preferences": {"鱼油": 0.8, "维生素": 0.7, "蛋白粉": 0.5}, "purchase_weight": 1.7},
+
+  {"demographic": "elderly", "name": "王大妈", "age_range": "60-70", "preferences": {"钙片": 0.9, "鱼油": 0.8, "维生素": 0.7}, "purchase_weight": 2.0},
+  {"demographic": "elderly", "name": "李大爷", "age_range": "65-75", "preferences": {"鱼油": 0.9, "钙片": 0.8, "维生素": 0.6}, "purchase_weight": 1.8},
+  {"demographic": "elderly", "name": "张奶奶", "age_range": "55-65", "preferences": {"维生素": 0.9, "钙片": 0.7, "益生菌": 0.6}, "purchase_weight": 1.6},
+  {"demographic": "elderly", "name": "陈爷爷", "age_range": "70-80", "preferences": {"钙片": 0.9, "鱼油": 0.8, "维生素": 0.7}, "purchase_weight": 1.5}
+]
