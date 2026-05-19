@@ -295,7 +295,7 @@ def _build_merchant_prompt(merchant_info, my_traffic, competitors, day):
 3. 今天重点 targeting 哪个人群（child/youth/middle/elderly）
 4. 是否要更新产品描述/卖点
 5. 如果库存不足，可以进货（1~99999件）
-6. 如果排名垫底，是否启动研发新品
+6. 如果排名垫底，可以启动研发新品（需指定名称、描述、售价、所需天数）
 
 请严格输出以下 JSON 格式（不要输出其他任何内容）：
 {{
@@ -304,7 +304,7 @@ def _build_merchant_prompt(merchant_info, my_traffic, competitors, day):
   "target_focus": "child|youth|middle|elderly",
   "description_update": "新的卖点描述，或空字符串表示不更新",
   "restock": 0,
-  "research_new_product": null,
+  "research_new_product": {{"name": "新品名称（必填，如'有机综合维生素矿物质片'）", "description": "新品描述（必填）", "price": 新品售价（必填，数字）, "days_needed": 研发所需天数（必填，1~7）}} | 不研发填 null,
   "reasoning": "你的决策理由"
 }}
 
@@ -313,7 +313,7 @@ def _build_merchant_prompt(merchant_info, my_traffic, competitors, day):
 - 如果排名靠前，可以适当提价
 - 如果排名垫底，考虑降价或研发新品
 - 库存不足时可以设置restock数量（1~99999），不进货则填0
-- 研发新品格式：{{"name": "新品名", "days_needed": 3}}"""
+- 研发新品格式：{{"name": "新品名", "description": "新品描述", "price": 新品售价, "days_needed": 3}}"""
 
 
 async def _generate_orders(db, product_map, allocations, decisions, day):
