@@ -1,142 +1,144 @@
-# AI 健康生活馆 · Fun Game — AI Merchants Brawl
+# AI Health Mall · Fun Game — AI Merchants Brawl
 
-5 个 AI 各自管理一款保健品，在同一平台上激烈竞争。平台 AI 每天动态分配 500 个顾客流量，商家 AI 自主决策定价、促销和人群策略，概率引擎根据 50+ 参数计算转化率和排名。
+[English](README.md) | [简体中文](README_CN.md)
 
-> 💡 思路来源：抖音 **梯度下沉君**
+Five AI agents each manage a health supplement brand, competing fiercely on a shared platform. The platform AI dynamically allocates 500 customer leads every day, while each merchant AI independently decides pricing, promotions, and target demographics. A probability engine with 50+ parameters calculates conversion rates and rankings.
+
+> Inspired by Douyin creator **梯度下沉君**
 
 ---
 
-## 5 大 AI 商家
+## The 5 AI Merchants
 
-| AI | 产品 | 品类 | 起售价 | 原价 | 目标人群 |
+| AI | Product | Category | Starting Price | MSRP | Target Demographic |
 |---|---|---|---|---|---|
-| 🔬 DeepSeek | 乳清蛋白粉 | 蛋白粉 | ¥268 | ¥328 | 青年 |
-| 🌍 GPT-4o | 综合维生素矿物质片 | 维生素 | ¥168 | ¥218 | 全年龄 |
-| 🔥 豆包 | 液体钙软胶囊 | 钙片 | ¥128 | ¥168 | 老年 |
-| 🤖 MiMo | 益生菌冻干粉 | 益生菌 | ¥138 | ¥178 | 儿童 |
-| 🍃 通义千问 | 深海鱼油 Omega-3 胶囊 | 鱼油 | ¥228 | ¥298 | 老年 |
+| DeepSeek | Whey Protein Powder | Protein | ¥268 | ¥328 | Young Adults |
+| GPT-4o | Multivitamin & Mineral Tablets | Vitamins | ¥168 | ¥218 | All Ages |
+| Doubao | Liquid Calcium Softgels | Calcium | ¥128 | ¥168 | Seniors |
+| MiMo | Probiotic Freeze-dried Powder | Probiotics | ¥138 | ¥178 | Children |
+| Qwen | Deep Sea Fish Oil Omega-3 | Fish Oil | ¥228 | ¥298 | Seniors |
 
-每个 AI 独立运行，使用各自的 API 接口，互不共享数据和策略。
+Each AI operates independently via its own API, with no shared data or strategy coordination.
 
 ---
 
-## 顾客池（5000+ 模拟用户）
+## Customer Pool (5,000+ Simulated Users)
 
-平台按真实人口比例构建了一个 **5000 人的顾客池**，其中 18 位是有名有姓的「明星用户」，其余为高斯分布生成的统计用户。
+The platform builds a **5,000-person customer pool** based on real-world demographic ratios, including 18 named "star users" and the rest generated via Gaussian distributions.
 
-| 人群 | 比例 | 明星用户 | 购买力 | 核心偏好 |
+| Demographic | Ratio | Star Users | Purchasing Power | Core Preferences |
 |---|---|---|---|---|
-| 👶 儿童（0-14岁） | 18% | 小明妈妈、小红爸爸、豆豆奶奶 | ⭐⭐⭐ | 益生菌 > 维生素 > 钙片 |
-| 💪 青年（15-35岁） | 30% | 林小美、陈佳佳、刘强、张小芳、王磊 | ⭐⭐⭐ | 蛋白粉 > 胶原蛋白 > 维生素 |
-| 🏢 中年（36-59岁） | 35% | 周大伟、赵思琪、孙建国、李芳、王建华 | ⭐⭐ | 鱼油 > 维生素 > 钙片 |
-| 👴 老年（60+岁） | 17% | 王大妈、李大爷、张奶奶、陈爷爷 | ⭐⭐ | 钙片 > 鱼油 > 维生素 |
+| Children (0–14) | 18% | Xiaoming's Mom, Xiaohong's Dad, Doudou's Grandma | ⭐⭐⭐ | Probiotics > Vitamins > Calcium |
+| Young Adults (15–35) | 30% | Lin Xiaomei, Chen Jiajia, Liu Qiang, Zhang Xiaofang, Wang Lei | ⭐⭐⭐ | Protein > Collagen > Vitamins |
+| Middle-aged (36–59) | 35% | Zhou Dawei, Zhao Siqi, Sun Jianguo, Li Fang, Wang Jianhua | ⭐⭐ | Fish Oil > Vitamins > Calcium |
+| Seniors (60+) | 17% | Aunt Wang, Grandpa Li, Grandma Zhang, Grandpa Chen | ⭐⭐ | Calcium > Fish Oil > Vitamins |
 
-每个顾客有独立的 **品类偏好向量**（对 5 个品类的喜好程度，0~1）、**价格敏感度**（影响折扣吸引力）、**品牌忠诚度**（影响重复购买概率）和 **时间行为模式**（不同时段购物概率）。
+Each customer has an independent **category preference vector** (0–1 affinity for each of the 5 categories), **price sensitivity** (affects discount appeal), **brand loyalty** (affects repeat purchase probability), and **temporal behavior pattern** (purchase probability varies by time of day).
 
 ---
 
-## 每日模拟流程（推进 1 天）
+## Daily Simulation Flow (Advance 1 Day)
 
-点击「推进明天」按钮或调用 `POST /api/v1/admin/advance-day`，触发完整的一日竞争循环：
+Click "Advance Day" or call `POST /api/v1/admin/advance-day` to trigger a complete daily competition cycle:
 
-### 第一步：平台 AI 调度流量
+### Step 1: Platform AI Allocates Traffic
 
-平台调度 AI（DeepSeek）收到所有商家昨日的表现数据（销量、收入、排名、趋势），结合 4 个人群的人口比例，**动态分配** 500 个顾客流量给 5 个商家。
+The platform scheduler AI (DeepSeek) receives yesterday's performance data (sales volume, revenue, rankings, trends) for all merchants, then **dynamically distributes** 500 customer leads across the 5 merchants based on the 4 demographic ratios.
 
-分配原则：
-- **正向激励**：卖得好的商家分到更多流量
-- **底线保护**：垫底商家不会零流量，保底翻盘机会
-- **品类匹配**：钙片优先推老年、蛋白粉优先推青年
-- **探索机制**：偶尔给强者分配弱匹配人群，测试市场边界
+Allocation principles:
+- **Positive reinforcement**: better-selling merchants get more traffic
+- **Safety net**: last-place merchant always gets a minimum allocation for comeback potential
+- **Category matching**: calcium → seniors, protein → young adults
+- **Exploration**: occasionally gives top performers weakly-matched demographics to test market boundaries
 
-如果平台 AI 调用失败（超时或异常），自动降级为**按品类-人群匹配度加权分配**，确保模拟不中断。
+If the platform AI call fails (timeout or error), the system degrades gracefully to **category-demographic affinity weighted allocation** to keep the simulation running.
 
-### 第二步：5 个商家 AI 并行决策
+### Step 2: 5 Merchant AIs Decide in Parallel
 
-5 个 AI 同时收到自己的经营报告，各自在 15 秒超时内完成决策。每个 AI 决定：
+All 5 AIs simultaneously receive their business reports and make decisions within a 15-second timeout. Each AI decides:
 
-| 决策项 | 说明 |
+| Decision | Description |
 |---|---|
-| 💰 **定价** | 建议在 ±15% 范围内调整 |
-| 🎯 **促销方案** | 限时折扣、满减、买赠等文案 |
-| 👥 **目标人群** | 今日重点攻打哪个人群 |
-| 📝 **卖点更新** | 是否优化产品描述和推荐语 |
-| 📦 **进货** | 库存不足时进货（1~99999 件） |
-| 🔬 **研发新品** | 排名垫底时可启动 3 天研发周期 |
+| Pricing | Adjust within ±15% of current price |
+| Promotion | Flash sale, bulk discount, free gift, etc. |
+| Target Demographic | Which demographic group to focus on today |
+| Selling Points | Optimize product description and recommendations |
+| Restocking | Reorder when inventory is low (1–99,999 units) |
+| R&D New Product | Initiate 3-day R&D cycle when ranked last |
 
-AI 的提示词包含：昨日销量、昨日收入、7 天平均、排名趋势、竞争对手排名（仅排名不含数据），以及今日平台分配的流量预估。
+Each AI's prompt includes: yesterday's sales, yesterday's revenue, 7-day average, ranking trend, competitor rankings (ranks only, no data), and today's estimated traffic allocation.
 
-### 第三步：概率引擎生成订单
+### Step 3: Probability Engine Generates Orders
 
-每笔可能的交易经过 **多层概率计算**：
+Every potential transaction goes through **multi-layered probability calculation**:
 
 ```
-最终转化率 = 基础转化率(15%) × 价格折扣因子 × 促销因子 × 品类匹配度
+Final Conversion Rate = Base Rate (15%) × Price Discount Factor × Promotion Factor × Category Affinity
 ```
 
-- **价格折扣因子**：`1 + 折扣率 × 2`。打 9 折 → 转化率 +20%
-- **促销因子**：有促销活动时 ×1.3
-- **品类匹配度**：钙片→老年 0.9，蛋白粉→儿童 0.3
-- **转化率上限**：60%，防止极端策略刷单
-- **随机扰动**：每笔交易独立掷骰，引入真实市场噪音
+- **Price Discount Factor**: `1 + discount_rate × 2`. A 10% discount → +20% conversion rate
+- **Promotion Factor**: ×1.3 when a promotion is active
+- **Category Affinity**: calcium → seniors 0.9, protein → children 0.3
+- **Conversion Cap**: 60% maximum, prevents strategy exploits
+- **Random Perturbation**: each transaction rolls independently, introducing realistic market noise
 
-例：某 AI 将钙片打 8 折 + 做促销、且平台分配了 100 个老年流量 → 转化率 = `15% × 1.4 × 1.3 × 0.9 = 24.6%`，约产生 25 笔订单。
+Example: An AI discounts calcium by 20%, runs a promotion, and gets 100 senior leads → conversion = `15% × 1.4 × 1.3 × 0.9 = 24.6%`, yielding ~25 orders.
 
-### 第四步：排名更新 & 平台建议
+### Step 4: Rankings Update & Platform Advisories
 
-每日结束后按销量重新排名，平台自动检测异常：
+After each day, merchants are re-ranked by sales volume. The platform auto-detects anomalies:
 
-- 🔴 **连续垫底**：连续 ≥2 天倒数第一 → 触发警告，建议降价或研发新品
-- 🟡 **零销量告警**：有流量却零转化 → 建议检查定价和描述
-
----
-
-## 研发系统
-
-排名垫底的 AI 可以启动 **新品研发**：投入 3 天研发周期，完成后上架同品类细分新品（如「益生菌加强版」），获得差异化竞争力。
-
-研发期间进度通过每日决策日志可见，上架后新产品自动参与竞争。
+- Last-place streak (≥2 consecutive days at bottom) → triggers warning, suggests price cuts or R&D
+- Zero sales with traffic → suggests checking pricing and product descriptions
 
 ---
 
-## AI 竞争控制台
+## R&D System
 
-管理员通过控制台（`/admin`）操作整个模拟：
+Last-place AIs can initiate **new product R&D**: a 3-day development cycle that produces a differentiated variant within the same category (e.g., "Probiotics Plus"), gaining a competitive edge.
 
-- 🚀 **推进明天**：一键触发完整日循环，5 个 AI 的完成状态实时动画展示（苹果吃豆进度条）
-- 🏆 **实时排行榜**：销量、收入、定价、促销、目标人群一目了然
-- 📋 **决策因果链**：查看每个 AI 今日决策的完整理由
-- ⚠️ **平台建议**：自动检测垫底和零销量，给出策略建议
-- 🔬 **研发追踪**：查看所有进行中和已完成的研发项目
-- 📦 **进货管理**：批量或单件进货
-- 🔄 **一键重置**：清空所有模拟数据，从第 0 天重新开始
+R&D progress is visible through daily decision logs. New products automatically enter competition upon launch.
 
 ---
 
-## 技术实现
+## AI Competition Console
 
-| 层 | 技术 |
+Admins operate the entire simulation through the console (`/admin`):
+
+- Advance Day: one-click full daily cycle with real-time animated status for all 5 AIs
+- Live Leaderboard: sales, revenue, pricing, promotions, target demographics at a glance
+- Decision Chain: view the complete rationale behind each AI's daily decisions
+- Platform Advisories: auto-detect last-place streaks and zero-sales, offer strategy suggestions
+- R&D Tracker: monitor all ongoing and completed R&D projects
+- Inventory Management: bulk or single-unit restocking
+- One-Click Reset: wipe all simulation data and restart from Day 0
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
 |---|---|
-| 后端 | Python · FastAPI · SQLAlchemy 异步 · SQLite |
-| 前端 | React 18 · TypeScript · Vite · Ant Design 5 · ECharts |
-| AI | DeepSeek · GPT-4o · 豆包 · MiMo · 通义千问（OpenAI 兼容协议） |
-| 状态管理 | Zustand · axios 拦截器统一错误处理 |
+| Backend | Python · FastAPI · Async SQLAlchemy · SQLite |
+| Frontend | React 18 · TypeScript · Vite · Ant Design 5 · ECharts |
+| AI | DeepSeek · GPT-4o · Doubao · MiMo · Qwen (OpenAI-compatible protocol) |
+| State Management | Zustand · Axios interceptor for unified error handling |
 
 ---
 
-## 快速开始
+## Quick Start
 
 ```bash
-# 1. 后端（端口 8000）
+# 1. Backend (port 8000)
 cd backend
 pip install -r requirements.txt
-cp .env.example .env          # 填入各 AI 的 API Key
+cp .env.example .env          # Fill in API keys for each AI
 uvicorn main:app --reload
 
-# 2. 前端（端口 5173，代理 /api → 8000）
+# 2. Frontend (port 5173, proxies /api → 8000)
 cd frontend
 npm install
 npm run dev
 ```
 
-浏览器打开 http://localhost:5173，点击「电竞控制台」→「推进明天」开始。
+Open http://localhost:5173, navigate to "Console" → "Advance Day" to begin.
