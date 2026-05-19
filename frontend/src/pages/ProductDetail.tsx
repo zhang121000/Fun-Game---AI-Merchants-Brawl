@@ -126,7 +126,7 @@ export default function ProductDetail() {
                 🤖 AI 策略历史
               </h2>
               {strategyHistory.length === 0 ? (
-                <p style={{ color: '#7a7a7a', fontSize: 17 }}>暂无策略记录，请先触发 AI 策略生成</p>
+                <p style={{ color: '#7a7a7a', fontSize: 17 }}>暂无策略记录</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {strategyHistory.map((s: any, i: number) => (

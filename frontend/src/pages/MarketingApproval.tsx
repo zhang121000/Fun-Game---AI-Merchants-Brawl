@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Card, Tag, Button, Space, Statistic, message, Spin, Modal, Input, Empty, Alert } from 'antd'
-import { CheckOutlined, CloseOutlined, ThunderboltOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Tag, Button, Space, message, Spin, Modal, Input } from 'antd'
+import { CheckOutlined, CloseOutlined, ReloadOutlined } from '@ant-design/icons'
 import client from '../api/client'
 
 const { TextArea } = Input
@@ -24,7 +24,6 @@ export default function MarketingApproval() {
   const [commentModal, setCommentModal] = useState<{ id: number; action: 'approve' | 'reject' } | null>(null)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [genResult, setGenResult] = useState<string | null>(null)
 
   const merchantMap = Object.fromEntries(merchants.map(m => [m.id, m]))
 
@@ -54,27 +53,6 @@ export default function MarketingApproval() {
     } catch (e: any) {
       message.error(e.response?.data?.detail || '操作失败')
     } finally { setSubmitting(false) }
-  }
-
-  const [generating, setGenerating] = useState(false)
-
-  async function triggerGeneration() {
-    setGenerating(true)
-    try {
-      const res = await client.post('/admin/generate-strategies')
-      const { auto_executed, pending_approval, results } = res.data
-      const errorCount = results?.filter((r: any) => r.status === 'error').length || 0
-      if (errorCount > 0 && auto_executed === 0 && pending_approval === 0) {
-        message.warning(`生成完成，但有 ${errorCount} 个产品出错，请检查后端日志`)
-      } else {
-        setGenResult(`✅ 已生成：${auto_executed} 条自动执行，${pending_approval} 条待审批`)
-      }
-      loadData()
-    } catch (e: any) {
-      message.error(e.response?.data?.detail || '触发失败，请检查 API Key 配置')
-    } finally {
-      setGenerating(false)
-    }
   }
 
   if (loading) return <div style={{ textAlign: 'center', padding: 200 }}><Spin size="large" /></div>
@@ -128,21 +106,11 @@ export default function MarketingApproval() {
 
       {/* 操作按钮 */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 32, justifyContent: 'center' }}>
-        <Button type="primary" icon={<ThunderboltOutlined />} onClick={triggerGeneration}
-          loading={generating}
-          style={{ height: 44, borderRadius: 9999, padding: '0 22px', fontSize: 17 }}>
-          {generating ? 'AI 正在分析...' : '触发 AI 策略生成'}
-        </Button>
         <Button icon={<ReloadOutlined />} onClick={loadData}
           style={{ height: 44, borderRadius: 9999, padding: '0 22px', fontSize: 17 }}>
           刷新
         </Button>
       </div>
-
-      {genResult && (
-        <Alert message={genResult} type="success" showIcon closable
-          onClose={() => setGenResult(null)} style={{ marginBottom: 24, borderRadius: 11 }} />
-      )}
 
       {/* 待审批策略列表 */}
       {pending.length === 0 ? (
@@ -151,7 +119,7 @@ export default function MarketingApproval() {
           background: '#f5f5f7', borderRadius: 18,
         }}>
           <p style={{ fontSize: 21, fontWeight: 600, marginBottom: 8 }}>暂无待审批策略</p>
-          <p style={{ fontSize: 17 }}>点击上方按钮触发 AI 生成新策略</p>
+          <p style={{ fontSize: 17 }}>暂无策略记录</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
