@@ -3,7 +3,7 @@ import {
   Button, Space, message, Spin, Tag, Modal, Input, Tooltip, Progress, Badge, Drawer, InputNumber,
 } from 'antd'
 import {
-  ThunderboltOutlined, ReloadOutlined, RocketOutlined,
+  ReloadOutlined, RocketOutlined,
   TrophyOutlined, BulbOutlined, WarningOutlined,
   CheckOutlined, CloseOutlined, ExperimentOutlined,
   RightOutlined, ArrowUpOutlined, ArrowDownOutlined, MinusOutlined,
@@ -75,11 +75,9 @@ export default function AdminDashboard() {
   const [decisionLog, setDecisionLog] = useState<DecisionLogItem[]>([])
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
-  const [genResult, setGenResult] = useState<string | null>(null)
   const [commentModal, setCommentModal] = useState<{ id: number; action: 'approve' | 'reject' } | null>(null)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [generating, setGenerating] = useState(false)
   const [showDecisionLog, setShowDecisionLog] = useState(false)
   const [applePhase, setApplePhase] = useState<'idle' | 'rolling' | 'sprint' | 'done'>('idle')
   const [aiCompleted, setAiCompleted] = useState<string[]>([])
@@ -191,24 +189,6 @@ export default function AdminDashboard() {
       setRestockAmounts(prev => ({ ...prev, [aiModel]: 100 }))
       loadAll()
     } catch { message.error('进货失败') }
-  }
-
-  async function triggerGeneration() {
-    setGenerating(true)
-    try {
-      const res = await client.post('/admin/generate-strategies')
-      const { auto_executed, pending_approval, results } = res.data
-      const errorCount = results?.filter((r: any) => r.status === 'error').length || 0
-      if (errorCount > 0 && auto_executed === 0 && pending_approval === 0) {
-        message.warning(`生成完成，但有 ${errorCount} 个产品出错`)
-      } else {
-        setGenResult(`✅ 已生成：${auto_executed} 条自动执行，${pending_approval} 条待审批`)
-      }
-      loadAll()
-    } catch (e: any) {
-      message.error(e.response?.data?.detail || '触发失败')
-    }
-    setGenerating(false)
   }
 
   async function handleAction() {
@@ -380,10 +360,6 @@ export default function AdminDashboard() {
 
       {/* ===== 操作按钮 ===== */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
-        <Button icon={<ThunderboltOutlined />} onClick={triggerGeneration}
-          loading={generating} style={{ height: 40, borderRadius: 9999, padding: '0 20px' }}>
-          {generating ? '生成中...' : '触发AI策略生成'}
-        </Button>
         <Button icon={<BulbOutlined />} onClick={loadDecisionLog}
           style={{ height: 40, borderRadius: 9999, padding: '0 20px' }}>
           查看今日决策
@@ -412,17 +388,6 @@ export default function AdminDashboard() {
           📦 进货管理
         </Button>
       </div>
-
-      {genResult && (
-        <div style={{
-          background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 11,
-          padding: '12px 16px', marginBottom: 24, fontSize: 14, color: '#166534',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        }}>
-          <span>{genResult}</span>
-          <Button type="text" size="small" onClick={() => setGenResult(null)}>✕</Button>
-        </div>
-      )}
 
       {/* ===== 平台建议 ===== */}
       {suggestions.length > 0 && (
