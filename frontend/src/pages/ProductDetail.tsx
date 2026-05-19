@@ -6,10 +6,10 @@ import { getProduct } from '../api/products'
 import client from '../api/client'
 
 const AI_LABELS: Record<string, string> = {
-  deepseek: 'DeepSeek', gpt: 'GPT', doubao: '豆包', mimo: 'MiMo', qwen: '通义千问',
+  GLM: 'GLM', gpt: 'GPT', MiniMax: 'MiniMax', Kimi: 'Kimi', qwen: '通义千问',
 }
 const AI_COLORS: Record<string, string> = {
-  deepseek: '#1677ff', gpt: '#722ed1', doubao: '#ff4d4f', mimo: '#ff6600', qwen: '#52c41a',
+  GLM: '#1677ff', gpt: '#722ed1', MiniMax: '#ff4d4f', Kimi: '#ff6600', qwen: '#52c41a',
 }
 const DEMO_LABELS: Record<string, string> = {
   elderly: '老年人', female: '女性', male: '男性', child: '儿童',

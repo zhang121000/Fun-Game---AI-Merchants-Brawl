@@ -6,10 +6,10 @@ from core.database import Base
 
 
 class AIModel(str, enum.Enum):
-    deepseek = "deepseek"
-    doubao = "doubao"
+    GLM = "GLM"
+    MiniMax = "MiniMax"
     gpt = "gpt"
-    mimo = "mimo"
+    Kimi = "Kimi"
     qwen = "qwen"
 
 

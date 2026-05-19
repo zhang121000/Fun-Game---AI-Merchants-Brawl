@@ -65,7 +65,7 @@ class BaseAIProvider(ABC):
         self,
         prompt: str,
         temperature: float = 0.3,
-        max_tokens: int = 2000,
+        max_tokens: int = 8000,
     ) -> dict | None:
         """调用 AI 并强制解析为 JSON，自动处理 markdown 包裹和残缺 JSON"""
         import re
@@ -90,14 +90,23 @@ class BaseAIProvider(ABC):
         except json.JSONDecodeError:
             pass
 
-        # 3) 用正则提取第一个 {...} 块（处理 AI 输出多余文字或缺括号的情况）
-        match = re.search(r"\{[\s\S]*\}", cleaned)
-        if match:
+        # 2.5) 部分模型（如 GLM-5）会吞掉开头的 {，尝试补上
+        if not cleaned.startswith("{") and cleaned.endswith("}"):
             try:
-                return json.loads(match.group())
+                return json.loads("{" + cleaned)
             except json.JSONDecodeError:
-                # 最后尝试补齐括号
-                fragment = match.group()
+                pass
+
+        # 3) 提取所有 {...} 块，从最后一个开始尝试解析（推理模型通常把 JSON 放在最后）
+        matches = list(re.finditer(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", cleaned))
+        if not matches:
+            matches = list(re.finditer(r"\{[\s\S]*?\}", cleaned))
+        for m in reversed(matches):
+            try:
+                return json.loads(m.group())
+            except json.JSONDecodeError:
+                # 尝试补齐括号
+                fragment = m.group()
                 open_braces = fragment.count("{") - fragment.count("}")
                 if open_braces > 0:
                     try:
@@ -105,5 +114,11 @@ class BaseAIProvider(ABC):
                     except json.JSONDecodeError:
                         pass
 
-        resp.parsed_data = None
-        return None
+        # 4) 最后尝试：寻找最后一个 { 到最后一个 } 之间的内容
+        last_open = cleaned.rfind("{")
+        last_close = cleaned.rfind("}")
+        if last_open >= 0 and last_close > last_open:
+            try:
+                return json.loads(cleaned[last_open:last_close + 1])
+            except json.JSONDecodeError:
+                pass

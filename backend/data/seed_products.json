@@ -1,6 +1,6 @@
 [
   {
-    "ai_model": "deepseek",
+    "ai_model": "GLM",
     "category": "蛋白粉",
     "name": "乳清蛋白粉",
     "price": 268,
@@ -18,7 +18,7 @@
     "demographic": "all"
   },
   {
-    "ai_model": "doubao",
+    "ai_model": "MiniMax",
     "category": "钙片",
     "name": "液体钙软胶囊",
     "price": 128,
@@ -27,7 +27,7 @@
     "demographic": "elderly"
   },
   {
-    "ai_model": "mimo",
+    "ai_model": "Kimi",
     "category": "益生菌",
     "name": "益生菌冻干粉",
     "price": 138,

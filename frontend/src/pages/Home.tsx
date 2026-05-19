@@ -5,10 +5,10 @@ import { ArrowRightOutlined, RobotOutlined, LineChartOutlined, ThunderboltOutlin
 import { getProducts } from '../api/products'
 
 const AI_LABELS: Record<string, { name: string; color: string; icon: string }> = {
-  deepseek: { name: 'DeepSeek AI', color: '#1677ff', icon: '🔬' },
+  GLM: { name: 'DeepSeek AI', color: '#1677ff', icon: '🔬' },
   gpt:      { name: 'GPT AI', color: '#722ed1', icon: '🌍' },
-  doubao:   { name: '豆包 AI', color: '#ff4d4f', icon: '🔥' },
-  mimo:     { name: 'MiMo AI', color: '#ff6600', icon: '🤖' },
+  MiniMax:   { name: '豆包 AI', color: '#ff4d4f', icon: '🔥' },
+  Kimi:     { name: 'Kimi AI', color: '#ff6600', icon: '🤖' },
   qwen:     { name: '通义千问 AI', color: '#52c41a', icon: '🍃' },
 }
 
@@ -66,7 +66,7 @@ export default function Home() {
         <p style={{
           fontSize: 17, color: '#7a7a7a', marginBottom: 32, letterSpacing: '-0.022em',
         }}>
-          DeepSeek · GPT · 豆包 · MiMo · 通义千问 — 五大 AI 各展所长，自主优化定价、文案和经营策略
+          GLM · GPT · MiniMax · Kimi · 通义千问 — 五大 AI 各展所长，自主优化定价、文案和经营策略
         </p>
         <div style={{
           display: 'flex', justifyContent: 'center', alignItems: 'center',
@@ -265,7 +265,7 @@ export default function Home() {
             AI 健康生活馆 · 商家后台 ©2026
           </p>
           <p style={{ fontSize: 12, color: '#a1a1a6' }}>
-            每款产品由独立 AI 专家管理 — DeepSeek · GPT · 豆包 · MiMo · 通义千问
+            每款产品由独立 AI 专家管理 — GLM · GPT · MiniMax · Kimi · 通义千问
           </p>
         </div>
       </footer>

@@ -43,8 +43,16 @@ class HttpProvider(BaseAIProvider):
                 latency = int((time.time() - start) * 1000)
                 usage = data.get("usage", {})
 
+                msg = data["choices"][0]["message"]
+                content = msg.get("content") or ""
+                reasoning = msg.get("reasoning_content")
+                if not content and reasoning:
+                    content = reasoning
+                elif reasoning and len(content) < 50:
+                    content = reasoning + "\n" + content
+
                 return AIResponse(
-                    content=data["choices"][0]["message"]["content"] or "",
+                    content=content,
                     model_name=self.model_name,
                     tokens_used=usage.get("total_tokens", 0),
                     latency_ms=latency,

@@ -6,10 +6,10 @@ import client from '../api/client'
 const { Option } = Select
 
 const AI_LABELS: Record<string, string> = {
-  deepseek: 'DeepSeek', gpt: 'GPT', doubao: '豆包', mimo: 'MiMo', qwen: '通义千问',
+  GLM: 'GLM', gpt: 'GPT', MiniMax: 'MiniMax', Kimi: 'Kimi', qwen: '通义千问',
 }
 const AI_COLORS: Record<string, string> = {
-  deepseek: '#6366f1', gpt: '#10b981', doubao: '#f59e0b', mimo: '#ef4444', qwen: '#3b82f6',
+  GLM: '#6366f1', gpt: '#10b981', MiniMax: '#f59e0b', Kimi: '#ef4444', qwen: '#3b82f6',
 }
 const DEMO_LABELS: Record<string, string> = {
   elderly: '老年', youth: '青年', middle: '中年', child: '儿童',

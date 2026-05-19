@@ -13,10 +13,10 @@ from config import get_settings
 
 
 _API_KEY_MAP = {
-    "deepseek": lambda s: s.DEEPSEEK_API_KEY,
+    "GLM":      lambda s: s.DEEPSEEK_API_KEY,
     "gpt":      lambda s: s.GPT_API_KEY,
-    "doubao":   lambda s: s.DOUBAO_API_KEY,
-    "mimo":     lambda s: s.MIMO_API_KEY,
+    "MiniMax":  lambda s: s.DOUBAO_API_KEY,
+    "Kimi":     lambda s: s.DEEPSEEK_API_KEY,
     "qwen":     lambda s: s.QWEN_API_KEY,
 }
 

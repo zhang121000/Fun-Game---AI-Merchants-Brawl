@@ -49,12 +49,12 @@ interface DecisionLogItem {
 
 // ============ 常量 ============
 const AI_COLORS: Record<string, string> = {
-  deepseek: '#6366f1', gpt: '#10b981', doubao: '#f59e0b',
-  mimo: '#ef4444', qwen: '#3b82f6',
+  GLM: '#6366f1', gpt: '#10b981', MiniMax: '#f59e0b',
+  Kimi: '#ef4444', qwen: '#3b82f6',
 }
 
 const AI_LABELS: Record<string, string> = {
-  deepseek: 'DeepSeek', gpt: 'GPT', doubao: '豆包', mimo: 'MiMo', qwen: '通义千问',
+  GLM: 'GLM', gpt: 'GPT', MiniMax: 'MiniMax', Kimi: 'Kimi', qwen: '通义千问',
 }
 
 const DEMO_LABELS: Record<string, string> = {
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
 
         if (!status.running && status.result) {
           setApplePhase('sprint')
-          setAiCompleted(['deepseek', 'gpt', 'doubao', 'mimo', 'qwen'])
+          setAiCompleted(['GLM', 'gpt', 'MiniMax', 'Kimi', 'qwen'])
           await new Promise(resolve => setTimeout(resolve, 500))
           setApplePhase('done')
           const data = status.result
@@ -310,7 +310,7 @@ export default function AdminDashboard() {
             )}
 
             {/* 5个圆点 — 嵌在轨道内 */}
-            {['deepseek', 'gpt', 'doubao', 'mimo', 'qwen'].map((ai, i) => {
+            {['GLM', 'gpt', 'MiniMax', 'Kimi', 'qwen'].map((ai, i) => {
               const eaten = aiCompleted.includes(ai)
               if (eaten) return null
               return (

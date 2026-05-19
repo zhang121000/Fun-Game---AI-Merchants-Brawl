@@ -22,9 +22,9 @@ DEMOGRAPHIC_RATIO: dict[str, float] = {
 
 # AI Provider API Key 映射
 API_KEY_MAP: dict[str, str] = {
-    "deepseek": "DEEPSEEK_API_KEY",
+    "GLM":      "DEEPSEEK_API_KEY",
     "gpt":      "GPT_API_KEY",
-    "doubao":   "DOUBAO_API_KEY",
-    "mimo":     "MIMO_API_KEY",
+    "MiniMax":  "DOUBAO_API_KEY",
+    "Kimi":     "DEEPSEEK_API_KEY",
     "qwen":     "QWEN_API_KEY",
 }

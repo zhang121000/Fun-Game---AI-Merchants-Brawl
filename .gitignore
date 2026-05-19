@@ -28,3 +28,4 @@ Thumbs.db
 .gstack/browse-audit.jsonl
 backend/.gstack/
 frontend/.gstack/
+.gstack/

@@ -8,7 +8,7 @@ import ProductCard from '../components/product/ProductCard'
 import client from '../api/client'
 
 const MODEL_LABELS: Record<string, string> = {
-  deepseek: 'DeepSeek', gpt: 'GPT', doubao: '豆包', mimo: 'MiMo', qwen: '通义千问',
+  GLM: 'GLM', gpt: 'GPT', MiniMax: 'MiniMax', Kimi: 'Kimi', qwen: '通义千问',
 }
 
 const DEMOGRAPHIC_TABS = [

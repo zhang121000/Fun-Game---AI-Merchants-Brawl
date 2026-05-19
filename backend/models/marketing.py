@@ -67,7 +67,7 @@ class DailyDecision(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     day: Mapped[int] = mapped_column(Integer)
-    merchant_ai: Mapped[str] = mapped_column(String(50))  # deepseek/gpt/doubao/mimo/qwen
+    merchant_ai: Mapped[str] = mapped_column(String(50))  # GLM/gpt/MiniMax/Kimi/qwen
     category: Mapped[str] = mapped_column(String(100))
     product_name: Mapped[str] = mapped_column(String(200), default="")
 

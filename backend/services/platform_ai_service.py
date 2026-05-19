@@ -53,8 +53,8 @@ def build_allocation_prompt(merchants_data: list[dict], day: int, total_pool: in
 请严格输出以下 JSON 格式（不要输出其他任何内容）：
 {{
   "allocations": [
-    {{"merchant_ai": "deepseek", "demographic": "elderly", "traffic": 25}},
-    {{"merchant_ai": "deepseek", "demographic": "middle", "traffic": 15}},
+    {{"merchant_ai": "GLM", "demographic": "elderly", "traffic": 25}},
+    {{"merchant_ai": "GLM", "demographic": "middle", "traffic": 15}},
     ...
   ],
   "reasoning": "今天的分配策略说明"
