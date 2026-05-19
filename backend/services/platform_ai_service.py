@@ -83,7 +83,7 @@ async def allocate_customers(merchants_data: list[dict], day: int) -> dict:
     return _fallback_allocate(merchants_data, settings.DEFAULT_TRAFFIC_POOL)
 
 
-def _fallback_allocate(merchants_data: list[dict], total_pool: int = 500) -> dict:
+def _fallback_allocate(merchants_data: list[dict], total_pool: int = 5000) -> dict:
     """降级分配方案：按品类匹配度加权分配"""
     demographics = ["child", "youth", "middle", "elderly"]
 
