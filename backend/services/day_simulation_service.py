@@ -373,10 +373,7 @@ async def _generate_orders(db, product_map, allocations, decisions, day):
             conversion = min(conversion, 0.6)  # 上限60%
 
             # 生成订单
-            actual_buyers = 0
-            for _ in range(traffic):
-                if random.random() < conversion:
-                    actual_buyers += 1
+            actual_buyers = random.binomialvariate(traffic, conversion)
 
             # 为每个买家创建订单
             for _ in range(actual_buyers):
