@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     SIMULATION_INTERVAL_MINUTES: int = 10
     MARKETING_INTERVAL_HOURS: int = 4
     MAX_DAILY_ORDERS: int = 500
-    DEFAULT_TRAFFIC_POOL: int = 500
+    DEFAULT_TRAFFIC_POOL: int = 5000
 
     class Config:
         env_file = ".env"

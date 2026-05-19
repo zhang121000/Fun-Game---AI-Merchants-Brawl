@@ -17,7 +17,7 @@ def get_platform_ai() -> HttpProvider:
     )
 
 
-def build_allocation_prompt(merchants_data: list[dict], day: int, total_pool: int = 500) -> str:
+def build_allocation_prompt(merchants_data: list[dict], day: int, total_pool: int = 5000) -> str:
     """构建平台AI的流量分配提示词"""
     merchants_text = ""
     for m in merchants_data:
