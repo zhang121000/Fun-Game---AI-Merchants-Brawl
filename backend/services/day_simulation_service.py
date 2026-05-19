@@ -20,10 +20,10 @@ from constants import CATEGORY_DEMO_AFFINITY, DEMOGRAPHIC_RATIO
 
 
 _API_KEY_MAP = {
-    "deepseek": lambda s: s.DEEPSEEK_API_KEY,
+    "GLM":      lambda s: s.DEEPSEEK_API_KEY,
     "gpt":      lambda s: s.GPT_API_KEY,
-    "doubao":   lambda s: s.DOUBAO_API_KEY,
-    "mimo":     lambda s: s.MIMO_API_KEY,
+    "MiniMax":  lambda s: s.DOUBAO_API_KEY,
+    "Kimi":     lambda s: s.DEEPSEEK_API_KEY,
     "qwen":     lambda s: s.QWEN_API_KEY,
 }
 
@@ -244,7 +244,7 @@ async def _get_all_decisions(db, product_map, merchants_data, allocations, day, 
         try:
             data = await asyncio.wait_for(
                 provider.generate_structured(prompt, temperature=0.5),
-                timeout=15.0,
+                timeout=30.0,
             )
             result = data or {}
         except Exception as e:
