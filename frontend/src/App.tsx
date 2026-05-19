@@ -3,6 +3,7 @@ import { Layout } from 'antd'
 import Header from './components/layout/Header'
 import Home from './pages/Home'
 import ProductDetail from './pages/ProductDetail'
+import MerchantShop from './pages/MerchantShop'
 import AnalyticsBoard from './pages/AnalyticsBoard'
 import AdminDashboard from './pages/AdminDashboard'
 
@@ -16,6 +17,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/shop/:id" element={<MerchantShop />} />
           <Route path="/admin/marketing" element={<Navigate to="/admin" replace />} />
           <Route path="/admin/analytics" element={<AnalyticsBoard />} />
           <Route path="/admin" element={<AdminDashboard />} />
