@@ -45,8 +45,12 @@ export default function MerchantShop() {
 
   async function loadStats() {
     try {
-      const res = await client.get('/analytics/merchant-compare')
-      setStats(res.data.find((x: any) => x.merchant_id === merchantId))
+      const res = await client.get('/admin/leaderboard')
+      const rankings = res.data.rankings || []
+      setStats({
+        orders: rankings.reduce((sum: number, r: any) => sum + (r.units_sold || 0), 0),
+        revenue: rankings.reduce((sum: number, r: any) => sum + (r.revenue || 0), 0),
+      })
     } catch { /* */ }
   }
 
