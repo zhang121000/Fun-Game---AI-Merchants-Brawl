@@ -1,0 +1,47 @@
+[
+  {
+    "ai_model": "deepseek",
+    "category": "蛋白粉",
+    "name": "乳清蛋白粉",
+    "price": 268,
+    "original_price": 328,
+    "description": "进口分离乳清蛋白，每份30g蛋白质，增肌减脂，运动后快速恢复。巧克力/香草双口味。",
+    "demographic": "youth"
+  },
+  {
+    "ai_model": "gpt",
+    "category": "维生素",
+    "name": "综合维生素矿物质片",
+    "price": 168,
+    "original_price": 218,
+    "description": "含12种维生素+8种矿物质，每日一粒补充全面营养，增强免疫力。适合全年龄段。",
+    "demographic": "all"
+  },
+  {
+    "ai_model": "doubao",
+    "category": "钙片",
+    "name": "液体钙软胶囊",
+    "price": 128,
+    "original_price": 168,
+    "description": "纳米级液体钙，添加维生素D3促进吸收，预防骨质疏松，守护骨骼健康。中老年首选。",
+    "demographic": "elderly"
+  },
+  {
+    "ai_model": "mimo",
+    "category": "益生菌",
+    "name": "益生菌冻干粉",
+    "price": 138,
+    "original_price": 178,
+    "description": "10联活性益生菌，300亿CFU活菌，调节肠道菌群，增强免疫力。适合全家使用。",
+    "demographic": "child"
+  },
+  {
+    "ai_model": "qwen",
+    "category": "鱼油",
+    "name": "深海鱼油Omega-3胶囊",
+    "price": 228,
+    "original_price": 298,
+    "description": "高纯度EPA+DHA，每粒1000mg深海鱼油，辅助降血脂，守护心脑血管健康。",
+    "demographic": "elderly"
+  }
+]

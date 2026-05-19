@@ -1,0 +1,10 @@
+[
+  {
+    "name": "智慧健康生活馆",
+    "ai_model": "multi",
+    "main_category": "综合健康",
+    "persona_prompt": "您是智慧健康生活馆的经营者，馆内有5款明星保健品，每款都由不同的AI专家独立管理。您关注数据驱动的决策，追求精准营销和优质客户体验。",
+    "brand_color": "#0066cc",
+    "brand_style": {"theme": "smart-health", "icon": "heart"}
+  }
+]
