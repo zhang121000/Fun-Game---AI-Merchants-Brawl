@@ -244,11 +244,13 @@ async def _get_all_decisions(db, product_map, merchants_data, allocations, day, 
         try:
             data = await asyncio.wait_for(
                 provider.generate_structured(prompt, temperature=0.5),
-                timeout=30.0,
+                timeout=60.0,
             )
             result = data or {}
         except Exception as e:
-            print(f"⚠️ {ai_model} 决策失败: {e}")
+            import traceback
+            print(f"⚠️ {ai_model} 决策失败 [{type(e).__name__}]: {e}")
+            traceback.print_exc()
             result = {}
 
         # 通知外部该AI已完成
