@@ -25,6 +25,18 @@ interface ProductCompare {
   category: string; orders: number; units_sold: number; revenue: number
 }
 
+interface Iteration {
+  id: number
+  merchant_ai: string
+  day: number
+  old_name: string
+  new_name: string
+  old_description: string
+  new_description: string
+  old_price: number
+  new_price: number
+}
+
 export default function AnalyticsBoard() {
   const [trendData, setTrendData] = useState<{ days: number[]; series: Record<string, number[]> }>({ days: [], series: {} })
   const [dimension, setDimension] = useState<string>('ai')
@@ -33,8 +45,25 @@ export default function AnalyticsBoard() {
   const [demoCategory, setDemoCategory] = useState<string>('all')
   const [products, setProducts] = useState<ProductCompare[]>([])
   const [loading, setLoading] = useState(true)
+  const [iterations, setIterations] = useState<Iteration[]>([])
+  const [iterMerchant, setIterMerchant] = useState<string>('gpt')
+  const [expandedIter, setExpandedIter] = useState<number | null>(null)
+  const [iterLoading, setIterLoading] = useState(false)
 
   useEffect(() => { loadData() }, [dimension])
+
+  useEffect(() => {
+    loadIterations()
+  }, [iterMerchant])
+
+  async function loadIterations() {
+    setIterLoading(true)
+    try {
+      const res = await client.get(`/admin/product-iterations?merchant_ai=${iterMerchant}`)
+      setIterations(res.data)
+    } catch { setIterations([]) }
+    setIterLoading(false)
+  }
 
   // 品类 → product_id 映射
   const categoryProductMap = useMemo(() => {
@@ -294,6 +323,107 @@ export default function AnalyticsBoard() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* 产品迭代历史 */}
+      <div style={{
+        background: '#ffffff', border: '1px solid #e0e0e0',
+        borderRadius: 18, padding: 32, marginTop: 32,
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontSize: 21, fontWeight: 600, margin: 0 }}>产品迭代历史</h2>
+          <Select
+            value={iterMerchant}
+            onChange={setIterMerchant}
+            style={{ width: 160 }}
+            popupMatchSelectWidth={false}
+          >
+            {Object.entries(AI_LABELS).map(([key, label]) => (
+              <Option key={key} value={key}>{label}</Option>
+            ))}
+          </Select>
+        </div>
+
+        {iterations.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 40, color: '#7a7a7a', fontSize: 14 }}>
+            暂无产品迭代记录
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {iterations.map((it, idx) => {
+              const isLatest = idx === 0
+              const color = AI_COLORS[it.merchant_ai] || '#0066cc'
+              const isExpanded = expandedIter === it.id
+
+              return (
+                <div key={it.id} style={{ display: 'flex', gap: 0 }}>
+                  <div style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    width: 32, flexShrink: 0,
+                  }}>
+                    <div style={{
+                      width: isLatest ? 14 : 10, height: isLatest ? 14 : 10,
+                      borderRadius: '50%',
+                      background: isLatest ? color : '#d0d0d0',
+                      border: isLatest ? `3px solid ${color}33` : '2px solid #e0e0e0',
+                      flexShrink: 0, marginTop: 8,
+                    }} />
+                    <div style={{ width: 2, flex: 1, background: idx < iterations.length - 1 ? '#e8e8e8' : 'transparent', minHeight: 20 }} />
+                  </div>
+
+                  <div
+                    style={{ flex: 1, padding: '10px 0 10px 12px', cursor: 'pointer' }}
+                    onClick={() => setExpandedIter(isExpanded ? null : it.id)}
+                  >
+                    <div style={{ fontSize: 13, color: '#7a7a7a', marginBottom: 2 }}>
+                      第 {it.day} 天
+                    </div>
+                    <div style={{ fontSize: 15, color: '#1d1d1f', lineHeight: 1.4 }}>
+                      <span style={{ textDecoration: 'line-through', color: '#7a7a7a' }}>{it.old_name}</span>
+                      {' → '}
+                      <span style={{ fontWeight: 600, color }}>{it.new_name}</span>
+                    </div>
+
+                    {isExpanded && (
+                      <div style={{
+                        marginTop: 12, background: '#f9f9fb',
+                        borderRadius: 10, padding: 16,
+                        border: '1px solid #eee',
+                      }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid #e0e0e0' }}>
+                              <th style={{ textAlign: 'left', padding: '6px 8px', color: '#7a7a7a', fontWeight: 400, fontSize: 12 }}>字段</th>
+                              <th style={{ textAlign: 'left', padding: '6px 8px', color: '#7a7a7a', fontWeight: 400, fontSize: 12 }}>旧值</th>
+                              <th style={{ textAlign: 'left', padding: '6px 8px', color: color, fontWeight: 400, fontSize: 12 }}>新值</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
+                              <td style={{ padding: '8px', color: '#7a7a7a', fontSize: 12 }}>产品名</td>
+                              <td style={{ padding: '8px', color: '#7a7a7a' }}>{it.old_name}</td>
+                              <td style={{ padding: '8px', color, fontWeight: 500 }}>{it.new_name}</td>
+                            </tr>
+                            <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
+                              <td style={{ padding: '8px', color: '#7a7a7a', fontSize: 12 }}>描述</td>
+                              <td style={{ padding: '8px', color: '#7a7a7a' }}>{it.old_description}</td>
+                              <td style={{ padding: '8px', color, fontWeight: 500 }}>{it.new_description}</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: '8px', color: '#7a7a7a', fontSize: 12 }}>价格</td>
+                              <td style={{ padding: '8px', color: '#7a7a7a' }}>¥{it.old_price}</td>
+                              <td style={{ padding: '8px', color, fontWeight: 500 }}>¥{it.new_price}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )
