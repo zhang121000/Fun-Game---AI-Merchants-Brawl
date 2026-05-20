@@ -1,6 +1,6 @@
 {
   "total_users": 100000,
-  "traffic_pool": 500,
+  "traffic_pool": 5000,
   "random_seed": 42,
   "demographics": {
     "child": {
