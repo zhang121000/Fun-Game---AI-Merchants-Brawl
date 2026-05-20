@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Card, Typography, Button, List, InputNumber, Empty, message, Popconfirm, Space, Tag } from 'antd'
+import { Card, Typography, Button, List, InputNumber, Empty, Popconfirm, Space, Tag } from 'antd'
 import { DeleteOutlined, ShoppingOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useCustomerStore } from '../stores/customerStore'
 import { useCartStore } from '../stores/cartStore'
 import { getProduct } from '../api/products'
 import { createOrder } from '../api/orders'
+import { getMessageApi } from '../api/client'
 
 const { Title, Text } = Typography
 
@@ -46,10 +47,10 @@ export default function Cart() {
     try {
       await createOrder(current.id)
       clear()
-      message.success('下单成功！')
+      getMessageApi()?.success('下单成功！')
       navigate('/orders')
     } catch {
-      message.error('下单失败')
+      getMessageApi()?.error('下单失败')
     }
     setSubmitting(false)
   }

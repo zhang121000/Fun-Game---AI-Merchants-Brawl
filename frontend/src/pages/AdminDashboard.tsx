@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  Button, Space, message, Spin, Tag, Modal, Input, Tooltip, Progress, Badge, Drawer, InputNumber,
+  Button, Space, Spin, Tag, Modal, Input, Tooltip, Progress, Badge, Drawer, InputNumber,
 } from 'antd'
 import {
   ReloadOutlined, RocketOutlined,
@@ -9,7 +9,7 @@ import {
   RightOutlined, ArrowUpOutlined, ArrowDownOutlined, MinusOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons'
-import client from '../api/client'
+import client, { getMessageApi } from '../api/client'
 
 const { TextArea } = Input
 
@@ -113,7 +113,7 @@ export default function AdminDashboard() {
     try {
       const startRes = await client.post('/admin/advance-day')
       if (startRes.data.status === 'running') {
-        message.info(startRes.data.message)
+        getMessageApi()?.info(startRes.data.message)
         setAdvancing(false)
         return
       }
@@ -138,24 +138,24 @@ export default function AdminDashboard() {
           await new Promise(resolve => setTimeout(resolve, 500))
           setApplePhase('done')
           const data = status.result
-          message.success(`第${data.day}天完成！${data.total_orders}笔订单，¥${data.total_revenue.toFixed(0)}收入`)
+          getMessageApi()?.success(`第${data.day}天完成！${data.total_orders}笔订单，¥${data.total_revenue.toFixed(0)}收入`)
           loadAll()
           setTimeout(() => { setApplePhase('idle'); setAiCompleted([]) }, 800)
           break
         }
         if (!status.running && status.error) {
           setApplePhase('idle')
-          message.error(`模拟失败: ${status.error}`)
+          getMessageApi()?.error(`模拟失败: ${status.error}`)
           break
         }
       }
       if (attempts >= maxAttempts) {
         setApplePhase('idle')
-        message.warning('模拟超时')
+        getMessageApi()?.warning('模拟超时')
       }
     } catch (e: any) {
       setApplePhase('idle')
-      message.error(e.response?.data?.detail || '推进失败')
+      getMessageApi()?.error(e.response?.data?.detail || '推进失败')
     }
     setAdvancing(false)
   }
@@ -165,7 +165,7 @@ export default function AdminDashboard() {
       const res = await client.get('/products')
       setProductList(res.data)
       setRestockDrawer(true)
-    } catch { message.error('加载产品失败') }
+    } catch { getMessageApi()?.error('加载产品失败') }
   }
 
   async function doRestockAll() {
@@ -175,7 +175,7 @@ export default function AdminDashboard() {
         try { await client.post(`/admin/products/${p.id}/restock`, { amount }) } catch {}
       }
     }
-    message.success('全部进货成功！')
+    getMessageApi()?.success('全部进货成功！')
     setRestockDrawer(false)
     loadAll()
   }
@@ -185,10 +185,10 @@ export default function AdminDashboard() {
     if (amount < 1) return
     try {
       await client.post(`/admin/products/${productId}/restock`, { amount })
-      message.success(`${AI_LABELS[aiModel] || aiModel} +${amount}`)
+      getMessageApi()?.success(`${AI_LABELS[aiModel] || aiModel} +${amount}`)
       setRestockAmounts(prev => ({ ...prev, [aiModel]: 100 }))
       loadAll()
-    } catch { message.error('进货失败') }
+    } catch { getMessageApi()?.error('进货失败') }
   }
 
   async function handleAction() {
@@ -199,10 +199,10 @@ export default function AdminDashboard() {
         ? `/marketing/strategies/${commentModal.id}/approve`
         : `/marketing/strategies/${commentModal.id}/reject`
       await client.post(endpoint, { comment })
-      message.success(commentModal.action === 'approve' ? '已批准' : '已驳回')
+      getMessageApi()?.success(commentModal.action === 'approve' ? '已批准' : '已驳回')
       setCommentModal(null); setComment(''); loadAll()
     } catch (e: any) {
-      message.error(e.response?.data?.detail || '操作失败')
+      getMessageApi()?.error(e.response?.data?.detail || '操作失败')
     }
     setSubmitting(false)
   }
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
       setDecisionLog(res.data.decisions || [])
       setShowDecisionLog(true)
     } catch {
-      message.error('加载决策日志失败')
+      getMessageApi()?.error('加载决策日志失败')
     }
   }
 
@@ -374,7 +374,7 @@ export default function AdminDashboard() {
           onClick={async () => {
             if (confirm('确认重置？将清除所有模拟数据，天数归零，库存恢复初始值。此操作不可撤销。')) {
               await client.post('/admin/reset')
-              message.success('已重置')
+              getMessageApi()?.success('已重置')
               loadAll()
             }
           }}

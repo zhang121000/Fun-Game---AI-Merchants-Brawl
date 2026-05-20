@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Tag, Button, Space, message, Spin, Modal, Input } from 'antd'
+import { Tag, Button, Space, Spin, Modal, Input } from 'antd'
 import { CheckOutlined, CloseOutlined, ReloadOutlined } from '@ant-design/icons'
-import client from '../api/client'
+import client, { getMessageApi } from '../api/client'
 
 const { TextArea } = Input
 
@@ -48,10 +48,10 @@ export default function MarketingApproval() {
         ? `/marketing/strategies/${commentModal.id}/approve`
         : `/marketing/strategies/${commentModal.id}/reject`
       await client.post(endpoint, { comment })
-      message.success(commentModal.action === 'approve' ? '已批准并执行' : '已驳回')
+      getMessageApi()?.success(commentModal.action === 'approve' ? '已批准并执行' : '已驳回')
       setCommentModal(null); setComment(''); loadData()
     } catch (e: any) {
-      message.error(e.response?.data?.detail || '操作失败')
+      getMessageApi()?.error(e.response?.data?.detail || '操作失败')
     } finally { setSubmitting(false) }
   }
 
