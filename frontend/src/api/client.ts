@@ -6,6 +6,10 @@ export function setMessageApi(api: any) {
   messageApi = api
 }
 
+export function getMessageApi() {
+  return messageApi
+}
+
 const client = axios.create({
   baseURL: '/api/v1',
   timeout: 15000,

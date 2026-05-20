@@ -23,7 +23,7 @@ export default function Header() {
         }}>
           AI 健康生活馆
         </Link>
-        <div style={{ display: 'flex', gap: 24, flex: 1 }}>
+        <div style={{ display: 'flex', gap: 24, flex: 1, overflowX: 'auto', scrollbarWidth: 'none' as const }}>
           {navLinks.map(link => (
             <Link
               key={link.path}
@@ -31,14 +31,14 @@ export default function Header() {
               style={{
                 fontSize: 12, color: location.pathname === link.path ? '#ffffff' : '#a1a1a6',
                 fontWeight: 400, letterSpacing: '-0.01em',
-                transition: 'color 0.2s',
+                transition: 'color 0.2s', whiteSpace: 'nowrap', flexShrink: 0,
               }}
             >
               {link.label}
             </Link>
           ))}
         </div>
-        <span style={{ fontSize: 12, color: '#7a7a7a' }}>商家后台</span>
+        <Link to="/shop/1" style={{ fontSize: 12, color: '#7a7a7a', whiteSpace: 'nowrap', flexShrink: 0 }}>商家后台</Link>
       </nav>
 
       {/* Sub Nav — 磨砂副导航 52px */}
@@ -46,7 +46,7 @@ export default function Header() {
         height: 52, background: 'rgba(245, 245, 247, 0.8)',
         backdropFilter: 'saturate(180%) blur(20px)',
         WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-        display: 'flex', alignItems: 'center', padding: '0 48px',
+        display: 'flex', alignItems: 'center', padding: '0 24px',
         borderBottom: '1px solid #e0e0e0',
         position: 'sticky', top: 44, zIndex: 999,
       }}>
