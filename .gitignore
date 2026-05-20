@@ -29,3 +29,6 @@ Thumbs.db
 backend/.gstack/
 frontend/.gstack/
 .gstack/
+
+# Git 工作树
+.worktrees/
