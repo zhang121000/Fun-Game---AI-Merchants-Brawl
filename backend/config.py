@@ -1,9 +1,18 @@
-from pydantic_settings import BaseSettings
 from functools import lru_cache
+from pathlib import Path
+
+from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
+
+
+load_dotenv(Path(__file__).with_name(".env"))
 
 
 class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./ai_health_mall.db"
+
+    EDGEFN_API_KEY: str = ""
+    EDGEFN_BASE_URL: str = "https://api.edgefn.net/v1"
 
     DEEPSEEK_API_KEY: str = ""
     DOUBAO_API_KEY: str = ""
@@ -11,6 +20,9 @@ class Settings(BaseSettings):
     GPT_API_KEY: str = ""
     MIMO_API_KEY: str = ""
     QWEN_API_KEY: str = ""
+    LANGSMITH_API_KEY: str = ""
+    LANGSMITH_TRACING: str = "false"
+    LANGSMITH_PROJECT: str = "AI-Merchants-Brawl"
 
     # 平台AI配置（DeepSeek V4 Flash）
     PLATFORM_AI_API_KEY: str = ""

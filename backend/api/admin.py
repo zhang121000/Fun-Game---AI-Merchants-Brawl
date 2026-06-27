@@ -1,22 +1,35 @@
-import asyncio
-from fastapi import APIRouter, Depends, Query, BackgroundTasks
-from sqlalchemy import select, func
+﻿import asyncio
+
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
+from pydantic import BaseModel
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.database import get_db, async_session
-from models.order import Order
-from models.merchant import Merchant
+
+from core.database import async_session, get_db
 from models.customer import Customer
+from models.marketing import DailyDecision, MarketingStrategy, PlatformAllocation, ProductIteration, ResearchProject, SimulationState
+from models.merchant import Merchant
+from models.order import Order
 from models.product import Product
-from models.marketing import (
-    MarketingStrategy, SimulationState, DailyDecision,
-    PlatformAllocation, ResearchProject, ProductIteration,
-)
 
 router = APIRouter()
 
-# 模拟状态追踪
 _simulation_lock = asyncio.Lock()
-_simulation_status = {"running": False, "day": 0, "result": None, "error": None, "ai_completed": []}
+_simulation_status = {
+    "running": False,
+    "day": 0,
+    "result": None,
+    "error": None,
+    "ai_completed": [],
+    "execution_path": None,
+    "graph_version": None,
+    "halt_reason": None,
+    "error_count": 0,
+    "halted": False,
+    "recovered_error_count": 0,
+    "failed_merchants": [],
+    "retry_summary": {},
+}
 
 
 @router.get("/admin/overview")
@@ -27,15 +40,14 @@ async def admin_overview(db: AsyncSession = Depends(get_db)):
     total_customers = (await db.execute(select(func.count()).select_from(Customer))).scalar() or 0
     total_products = (await db.execute(select(func.count()).select_from(Product))).scalar() or 0
 
-    # 获取模拟状态
     state = (await db.execute(select(SimulationState))).scalars().first()
     current_day = state.current_day if state else 0
 
-    # 获取待审批策略数
-    pending_strategies = (await db.execute(
-        select(func.count()).select_from(MarketingStrategy)
-        .where(MarketingStrategy.status == "pending")
-    )).scalar() or 0
+    pending_strategies = (
+        await db.execute(
+            select(func.count()).select_from(MarketingStrategy).where(MarketingStrategy.status == "pending")
+        )
+    ).scalar() or 0
 
     return {
         "total_orders": total_orders,
@@ -53,17 +65,15 @@ async def advance_day(
     db: AsyncSession = Depends(get_db),
     background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
-    """推进一天：后台执行，立即返回状态"""
     global _simulation_status
 
     if _simulation_status["running"]:
         return {
             "status": "running",
-            "message": f"模拟已在运行中（第{_simulation_status['day']}天）",
+            "message": f"Simulation already running for day {_simulation_status['day']}",
             "day": _simulation_status["day"],
         }
 
-    # 获取当前天数
     state = (await db.execute(select(SimulationState))).scalars().first()
     next_day = (state.current_day if state else 0) + 1
 
@@ -73,6 +83,14 @@ async def advance_day(
         "result": None,
         "error": None,
         "ai_completed": [],
+        "execution_path": None,
+        "graph_version": None,
+        "halt_reason": None,
+        "error_count": 0,
+        "halted": False,
+        "recovered_error_count": 0,
+        "failed_merchants": [],
+        "retry_summary": {},
     }
 
     async def _run_simulation():
@@ -92,14 +110,30 @@ async def advance_day(
                     "result": result,
                     "error": None,
                     "ai_completed": _simulation_status["ai_completed"],
+                    "execution_path": result.get("execution_path"),
+                    "graph_version": result.get("graph_version"),
+                    "halt_reason": result.get("halt_reason"),
+                    "error_count": result.get("error_count", 0),
+                    "halted": result.get("halted", False),
+                    "recovered_error_count": result.get("recovered_error_count", 0),
+                    "failed_merchants": result.get("failed_merchants", []),
+                    "retry_summary": result.get("retry_summary", {}),
                 }
-        except Exception as e:
+        except Exception as exc:
             _simulation_status = {
                 "running": False,
                 "day": next_day,
                 "result": None,
-                "error": str(e),
+                "error": str(exc),
                 "ai_completed": _simulation_status.get("ai_completed", []),
+                "execution_path": None,
+                "graph_version": None,
+                "halt_reason": None,
+                "error_count": 0,
+                "halted": False,
+                "recovered_error_count": 0,
+                "failed_merchants": [],
+                "retry_summary": {},
             }
 
     background_tasks.add_task(_run_simulation)
@@ -107,17 +141,14 @@ async def advance_day(
     return {
         "status": "started",
         "day": next_day,
-        "message": f"第{next_day}天模拟已启动，调用6个AI决策中...",
+        "message": f"Day {next_day} simulation started.",
     }
 
 
 @router.get("/admin/advance-day-status")
 async def advance_day_status():
-    """检查推进状态"""
     return _simulation_status
 
-
-from pydantic import BaseModel
 
 class RestockBody(BaseModel):
     amount: int
@@ -125,14 +156,13 @@ class RestockBody(BaseModel):
 
 @router.post("/admin/products/{product_id}/restock")
 async def admin_restock(product_id: int, body: RestockBody, db: AsyncSession = Depends(get_db)):
-    """管理员手动进货"""
     amount = body.amount
     if amount < 1 or amount > 99999:
-        return {"error": "进货量需在 1~99999 之间"}
+        return {"error": "Restock amount must be between 1 and 99999"}
 
     product = await db.get(Product, product_id)
     if not product:
-        return {"error": "产品不存在"}
+        return {"error": "Product not found"}
 
     product.stock = min(product.stock + amount, 99999)
     await db.commit()
@@ -141,11 +171,9 @@ async def admin_restock(product_id: int, body: RestockBody, db: AsyncSession = D
 
 @router.post("/admin/reset")
 async def admin_reset(db: AsyncSession = Depends(get_db)):
-    """一键重置：清空所有模拟数据，天数归零，库存恢复"""
     from sqlalchemy import delete
     from models.order import OrderItem
 
-    # 清空所有模拟数据
     await db.execute(delete(OrderItem))
     await db.execute(delete(Order))
     await db.execute(delete(DailyDecision))
@@ -154,19 +182,32 @@ async def admin_reset(db: AsyncSession = Depends(get_db)):
     await db.execute(delete(ProductIteration))
     await db.execute(delete(SimulationState))
 
-    # 恢复产品库存
     products = (await db.execute(select(Product))).scalars().all()
-    for p in products:
-        p.stock = 200
+    for product in products:
+        product.stock = 200
 
-    # 重新初始化模拟状态
     db.add(SimulationState(current_day=0))
 
     global _simulation_status
-    _simulation_status = {"running": False, "day": 0, "result": None, "error": None}
+    _simulation_status = {
+        "running": False,
+        "day": 0,
+        "result": None,
+        "error": None,
+        "ai_completed": [],
+        "execution_path": None,
+        "graph_version": None,
+        "halt_reason": None,
+        "error_count": 0,
+        "halted": False,
+        "recovered_error_count": 0,
+        "failed_merchants": [],
+        "retry_summary": {},
+    }
 
     await db.commit()
-    return {"status": "ok", "message": "所有数据已清除，天数归零"}
+    return {"status": "ok", "message": "Simulation reset complete"}
+
 
 @router.get("/admin/simulation-state")
 async def simulation_state(db: AsyncSession = Depends(get_db)):
@@ -182,202 +223,197 @@ async def simulation_state(db: AsyncSession = Depends(get_db)):
 
 @router.get("/admin/leaderboard")
 async def leaderboard(db: AsyncSession = Depends(get_db)):
-    """获取最新排名"""
     state = (await db.execute(select(SimulationState))).scalars().first()
     if not state or state.current_day == 0:
         return {"day": 0, "rankings": []}
 
     current_day = state.current_day
-
-    # 获取今天所有商家的决策记录
-    decisions = (await db.execute(
-        select(DailyDecision)
-        .where(DailyDecision.day == current_day)
-        .order_by(DailyDecision.rank)
-    )).scalars().all()
+    decisions = (
+        await db.execute(
+            select(DailyDecision).where(DailyDecision.day == current_day).order_by(DailyDecision.rank)
+        )
+    ).scalars().all()
 
     rankings = []
-    for d in decisions:
-        # 获取该商家的历史排名（最近7天）
-        history = (await db.execute(
-            select(DailyDecision.rank, DailyDecision.units_sold)
-            .where(DailyDecision.merchant_ai == d.merchant_ai)
-            .where(DailyDecision.day >= max(1, current_day - 7))
-            .where(DailyDecision.day <= current_day)
-            .order_by(DailyDecision.day)
-        )).all()
+    for decision in decisions:
+        history = (
+            await db.execute(
+                select(DailyDecision.rank, DailyDecision.units_sold)
+                .where(DailyDecision.merchant_ai == decision.merchant_ai)
+                .where(DailyDecision.day >= max(1, current_day - 7))
+                .where(DailyDecision.day <= current_day)
+                .order_by(DailyDecision.day)
+            )
+        ).all()
 
-        rankings.append({
-            "merchant_ai": d.merchant_ai,
-            "category": d.category,
-            "product_name": d.product_name,
-            "rank": d.rank,
-            "units_sold": d.units_sold,
-            "revenue": d.revenue,
-            "price": d.price,
-            "promotion": d.promotion,
-            "target_focus": d.target_focus,
-            "reasoning": d.reasoning,
-            "traffic_received": d.traffic_received,
-            "history": [{"rank": h[0], "units": h[1]} for h in history],
-        })
+        rankings.append(
+            {
+                "merchant_ai": decision.merchant_ai,
+                "category": decision.category,
+                "product_name": decision.product_name,
+                "rank": decision.rank,
+                "units_sold": decision.units_sold,
+                "revenue": decision.revenue,
+                "price": decision.price,
+                "promotion": decision.promotion,
+                "target_focus": decision.target_focus,
+                "reasoning": decision.reasoning,
+                "traffic_received": decision.traffic_received,
+                "history": [{"rank": item[0], "units": item[1]} for item in history],
+            }
+        )
 
     return {"day": current_day, "rankings": rankings}
 
 
 @router.get("/admin/decision-log")
 async def decision_log(day: int = Query(None), db: AsyncSession = Depends(get_db)):
-    """获取某天的决策因果链"""
     if day is None:
         state = (await db.execute(select(SimulationState))).scalars().first()
         day = state.current_day if state else 1
 
-    decisions = (await db.execute(
-        select(DailyDecision)
-        .where(DailyDecision.day == day)
-        .order_by(DailyDecision.rank)
-    )).scalars().all()
-
-    allocations = (await db.execute(
-        select(PlatformAllocation)
-        .where(PlatformAllocation.day == day)
-    )).scalars().all()
+    decisions = (
+        await db.execute(select(DailyDecision).where(DailyDecision.day == day).order_by(DailyDecision.rank))
+    ).scalars().all()
+    allocations = (
+        await db.execute(select(PlatformAllocation).where(PlatformAllocation.day == day))
+    ).scalars().all()
 
     return {
         "day": day,
         "decisions": [
             {
-                "merchant_ai": d.merchant_ai,
-                "category": d.category,
-                "product_name": d.product_name,
-                "price": d.price,
-                "promotion": d.promotion,
-                "target_focus": d.target_focus,
-                "description_update": d.description_update,
-                "reasoning": d.reasoning,
-                "traffic_received": d.traffic_received,
-                "units_sold": d.units_sold,
-                "revenue": d.revenue,
-                "rank": d.rank,
-                "research_product": d.research_product,
+                "merchant_ai": decision.merchant_ai,
+                "category": decision.category,
+                "product_name": decision.product_name,
+                "price": decision.price,
+                "promotion": decision.promotion,
+                "target_focus": decision.target_focus,
+                "description_update": decision.description_update,
+                "reasoning": decision.reasoning,
+                "traffic_received": decision.traffic_received,
+                "units_sold": decision.units_sold,
+                "revenue": decision.revenue,
+                "rank": decision.rank,
+                "research_product": decision.research_product,
             }
-            for d in decisions
+            for decision in decisions
         ],
         "allocations": [
             {
-                "merchant_ai": a.merchant_ai,
-                "demographic": a.demographic,
-                "traffic_count": a.traffic_count,
+                "merchant_ai": allocation.merchant_ai,
+                "demographic": allocation.demographic,
+                "traffic_count": allocation.traffic_count,
             }
-            for a in allocations
+            for allocation in allocations
         ],
     }
 
 
 @router.get("/admin/platform-suggestions")
 async def platform_suggestions(db: AsyncSession = Depends(get_db)):
-    """获取平台建议"""
     state = (await db.execute(select(SimulationState))).scalars().first()
     if not state or state.current_day == 0:
         return {"suggestions": []}
 
     current_day = state.current_day
-    decisions = (await db.execute(
-        select(DailyDecision)
-        .where(DailyDecision.day == current_day)
-        .order_by(DailyDecision.rank)
-    )).scalars().all()
+    decisions = (
+        await db.execute(
+            select(DailyDecision).where(DailyDecision.day == current_day).order_by(DailyDecision.rank)
+        )
+    ).scalars().all()
 
     if len(decisions) < 2:
         return {"suggestions": []}
 
     suggestions = []
     last = decisions[-1]
-
-    # 检查连续垫底
-    recent = (await db.execute(
-        select(DailyDecision)
-        .where(DailyDecision.merchant_ai == last.merchant_ai)
-        .where(DailyDecision.day >= current_day - 3)
-        .where(DailyDecision.day < current_day)
-        .order_by(DailyDecision.day.desc())
-    )).scalars().all()
+    recent = (
+        await db.execute(
+            select(DailyDecision)
+            .where(DailyDecision.merchant_ai == last.merchant_ai)
+            .where(DailyDecision.day >= current_day - 3)
+            .where(DailyDecision.day < current_day)
+            .order_by(DailyDecision.day.desc())
+        )
+    ).scalars().all()
 
     total_merchants = len(decisions)
-    consecutive_last = all(d.rank == total_merchants for d in recent)
-
+    consecutive_last = all(item.rank == total_merchants for item in recent)
     if consecutive_last and len(recent) >= 1:
-        suggestions.append({
-            "merchant_ai": last.merchant_ai,
-            "category": last.category,
-            "type": "warning",
-            "message": f"连续{len(recent)+1}天排名垫底",
-            "advice": "建议：1)降价促销冲量 2)研发同品类新品 3)调整目标人群",
-        })
+        suggestions.append(
+            {
+                "merchant_ai": last.merchant_ai,
+                "category": last.category,
+                "type": "warning",
+                "message": f"Last place streak: {len(recent) + 1} days",
+                "advice": "Consider price changes, promotions, or a new research project.",
+            }
+        )
 
-    # 检查零销量
-    for d in decisions:
-        if d.units_sold == 0 and d.traffic_received > 10:
-            suggestions.append({
-                "merchant_ai": d.merchant_ai,
-                "category": d.category,
-                "type": "alert",
-                "message": f"今日零销量（{d.traffic_received}个流量，转化率0%）",
-                "advice": "建议：检查定价是否过高，或产品描述吸引力不足",
-            })
+    for decision in decisions:
+        if decision.units_sold == 0 and decision.traffic_received > 10:
+            suggestions.append(
+                {
+                    "merchant_ai": decision.merchant_ai,
+                    "category": decision.category,
+                    "type": "alert",
+                    "message": f"Zero sales after {decision.traffic_received} visits.",
+                    "advice": "Review pricing and product description.",
+                }
+            )
 
-    # 检查研发项目
-    active_research = (await db.execute(
-        select(ResearchProject)
-        .where(ResearchProject.status == "active")
-    )).scalars().all()
-
-    for r in active_research:
-        suggestions.append({
-            "merchant_ai": r.merchant_ai,
-            "category": r.category,
-            "type": "info",
-            "message": f"正在研发「{r.product_name}」，还需{r.days_remaining}天上架",
-            "advice": "",
-        })
+    active_research = (
+        await db.execute(select(ResearchProject).where(ResearchProject.status == "active"))
+    ).scalars().all()
+    for research in active_research:
+        suggestions.append(
+            {
+                "merchant_ai": research.merchant_ai,
+                "category": research.category,
+                "type": "info",
+                "message": f"Research in progress for {research.product_name}, {research.days_remaining} days remaining.",
+                "advice": "",
+            }
+        )
 
     return {"suggestions": suggestions}
 
 
 @router.get("/admin/research-projects")
 async def research_projects(db: AsyncSession = Depends(get_db)):
-    """获取所有研发项目"""
-    projects = (await db.execute(
-        select(ResearchProject).order_by(ResearchProject.started_day.desc())
-    )).scalars().all()
+    projects = (
+        await db.execute(select(ResearchProject).order_by(ResearchProject.started_day.desc()))
+    ).scalars().all()
 
     return [
         {
-            "id": p.id,
-            "merchant_ai": p.merchant_ai,
-            "category": p.category,
-            "product_name": p.product_name,
-            "days_total": p.days_total,
-            "days_remaining": p.days_remaining,
-            "status": p.status,
-            "started_day": p.started_day,
-            "completed_day": p.completed_day,
+            "id": project.id,
+            "merchant_ai": project.merchant_ai,
+            "category": project.category,
+            "product_name": project.product_name,
+            "days_total": project.days_total,
+            "days_remaining": project.days_remaining,
+            "status": project.status,
+            "started_day": project.started_day,
+            "completed_day": project.completed_day,
         }
-        for p in projects
+        for project in projects
     ]
 
 
 @router.post("/admin/generate-strategies")
 async def generate_strategies(db: AsyncSession = Depends(get_db)):
     from services.marketing_service import generate_all_strategies
+
     results = await generate_all_strategies(db)
-    auto = sum(1 for r in results if r.get("status") == "auto_executed")
-    pending = sum(1 for r in results if r.get("status") == "pending_approval")
+    auto = sum(1 for item in results if item.get("status") == "auto_executed")
+    pending = sum(1 for item in results if item.get("status") == "pending_approval")
     return {
         "results": results,
         "auto_executed": auto,
         "pending_approval": pending,
-        "message": f"生成 {len(results)} 条策略：{auto} 条自动执行，{pending} 条待审批"
+        "message": f"Generated {len(results)} strategies: {auto} auto, {pending} pending.",
     }
 
 
@@ -386,24 +422,25 @@ async def product_iterations(
     merchant_ai: str = Query(...),
     db: AsyncSession = Depends(get_db),
 ):
-    """获取指定 AI 商家的产品迭代历史，按时间从近到远排列"""
-    iterations = (await db.execute(
-        select(ProductIteration)
-        .where(ProductIteration.merchant_ai == merchant_ai)
-        .order_by(ProductIteration.day.desc())
-    )).scalars().all()
+    iterations = (
+        await db.execute(
+            select(ProductIteration)
+            .where(ProductIteration.merchant_ai == merchant_ai)
+            .order_by(ProductIteration.day.desc())
+        )
+    ).scalars().all()
 
     return [
         {
-            "id": it.id,
-            "merchant_ai": it.merchant_ai,
-            "day": it.day,
-            "old_name": it.old_name,
-            "new_name": it.new_name,
-            "old_description": it.old_description,
-            "new_description": it.new_description,
-            "old_price": it.old_price,
-            "new_price": it.new_price,
+            "id": iteration.id,
+            "merchant_ai": iteration.merchant_ai,
+            "day": iteration.day,
+            "old_name": iteration.old_name,
+            "new_name": iteration.new_name,
+            "old_description": iteration.old_description,
+            "new_description": iteration.new_description,
+            "old_price": iteration.old_price,
+            "new_price": iteration.new_price,
         }
-        for it in iterations
+        for iteration in iterations
     ]

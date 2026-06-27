@@ -3,6 +3,7 @@
 import httpx
 import time
 import json
+from langsmith import traceable
 from ai.base_provider import BaseAIProvider, AIResponse
 
 
@@ -12,6 +13,7 @@ class HttpProvider(BaseAIProvider):
     def __init__(self, api_key: str, base_url: str, model_name: str):
         super().__init__(api_key, base_url, model_name)
 
+    @traceable(name="provider_http_chat", run_type="llm")
     async def _do_chat(self, messages, temperature=0.7, max_tokens=2000) -> AIResponse:
         start = time.time()
 
