@@ -1,5 +1,13 @@
 import client from './client'
 
-export const getCustomers = () => client.get('/customers')
-export const getCurrentCustomer = () => client.get('/customers/current')
-export const switchCustomer = (id: number) => client.post(`/customers/switch/${id}`)
+export function getCustomers() {
+  return client.get('/customers')
+}
+
+export function getCurrentCustomer() {
+  return client.get('/customers/current')
+}
+
+export function switchCustomer(id: number) {
+  return client.post(`/customers/switch/${id}`)
+}

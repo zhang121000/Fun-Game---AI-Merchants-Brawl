@@ -1,4 +1,4 @@
-/* Apple Design System — Global Styles */
+/* Apple Design System — Global Styles (Vue Edition) */
 
 * {
   margin: 0;
@@ -37,7 +37,30 @@ a:hover {
   color: #0071e3;
 }
 
-/* Apple pill button override */
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d2d2d7;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a6;
+}
+
+/* 移除 Ant Design Vue 的默认阴影 */
+.ant-card {
+  box-shadow: none !important;
+}
+.ant-card-bordered {
+  border: 1px solid #e0e0e0 !important;
+}
+
+/* Apple pill button overrides for ant-design-vue */
 .ant-btn-primary {
   border-radius: 9999px !important;
   font-weight: 400 !important;
@@ -67,27 +90,4 @@ a:hover {
 
 .ant-btn-default:active {
   transform: scale(0.95) !important;
-}
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #d2d2d7;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a6;
-}
-
-/* Remove Ant Design's default shadows */
-.ant-card {
-  box-shadow: none !important;
-}
-.ant-card-bordered {
-  border: 1px solid #e0e0e0 !important;
 }

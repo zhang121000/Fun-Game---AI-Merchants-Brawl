@@ -1,4 +1,4 @@
-# ---- 开发阶段 ----
+# ---- Development stage ----
 FROM node:20-alpine AS dev
 
 WORKDIR /app
@@ -8,12 +8,12 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 5173
+EXPOSE 5174
 
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 
-# ---- 构建阶段 ----
+# ---- Build stage ----
 FROM node:20-alpine AS build
 
 WORKDIR /app
@@ -25,7 +25,7 @@ COPY . .
 RUN npm run build
 
 
-# ---- 生产阶段 ----
+# ---- Production stage ----
 FROM nginx:alpine AS prod
 
 COPY --from=build /app/dist /usr/share/nginx/html

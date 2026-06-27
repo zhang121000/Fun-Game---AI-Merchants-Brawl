@@ -1,6 +1,13 @@
 import client from './client'
 
-export const getMerchants = () => client.get('/merchants')
-export const getMerchant = (id: number) => client.get(`/merchants/${id}`)
-export const getMerchantProducts = (id: number, demographic?: string) =>
-  client.get(`/merchants/${id}/products`, { params: { demographic } })
+export function getMerchants() {
+  return client.get('/merchants')
+}
+
+export function getMerchant(id: number) {
+  return client.get(`/merchants/${id}`)
+}
+
+export function getMerchantProducts(id: number, demographic?: string) {
+  return client.get(`/merchants/${id}/products`, { params: { demographic } })
+}

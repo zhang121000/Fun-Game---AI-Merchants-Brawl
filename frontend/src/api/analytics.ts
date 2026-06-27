@@ -1,22 +1,29 @@
 import client from './client'
 
-export const getSalesTrend = (days = 30) =>
-  client.get('/analytics/sales-trend', { params: { days } })
+export function getSalesTrend(days = 30) {
+  return client.get('/analytics/sales-trend', { params: { days } })
+}
 
-export const getDemographicDist = () =>
-  client.get('/analytics/demographic-dist')
+export function getDemographicDist() {
+  return client.get('/analytics/demographic-dist')
+}
 
-export const getProductCompare = () =>
-  client.get('/analytics/product-compare')
+export function getProductCompare() {
+  return client.get('/analytics/product-compare')
+}
 
-export const getProductDemoBreakdown = (productId: number) =>
-  client.get(`/analytics/product/${productId}/demographic-breakdown`)
+export function getProductDemoBreakdown(productId: number) {
+  return client.get(`/analytics/product/${productId}/demographic-breakdown`)
+}
 
-export const getTopProducts = (limit = 10) =>
-  client.get('/analytics/top-products', { params: { limit } })
+export function getTopProducts(limit = 10) {
+  return client.get('/analytics/top-products', { params: { limit } })
+}
 
-export const getAdminOverview = () =>
-  client.get('/admin/overview')
+export function getAdminOverview() {
+  return client.get('/admin/overview')
+}
 
-export const runSimulationTick = (count = 1) =>
-  client.post(`/admin/simulation/tick?count=${count}`)
+export function runSimulationTick(count = 1) {
+  return client.post(`/admin/simulation/tick?count=${count}`)
+}

@@ -19,7 +19,7 @@ app = FastAPI(title="AI 保健品电商平台", version="0.1.0", lifespan=lifesp
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5174"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,14 +1,5 @@
 import axios from 'axios'
-
-let messageApi: any = null
-
-export function setMessageApi(api: any) {
-  messageApi = api
-}
-
-export function getMessageApi() {
-  return messageApi
-}
+import { message } from 'ant-design-vue'
 
 const client = axios.create({
   baseURL: '/api/v1',
@@ -16,9 +7,7 @@ const client = axios.create({
 })
 
 function showError(msg: string) {
-  if (messageApi) {
-    messageApi.error(msg)
-  }
+  message.error(msg)
 }
 
 // 响应拦截器：统一错误处理，避免各页面卡在 loading 状态

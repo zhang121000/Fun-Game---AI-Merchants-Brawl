@@ -8,8 +8,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app          # 代码热重载
-      - backend-data:/app/data  # SQLite 数据持久化
+      - ./backend:/app
+      - backend-data:/app/data
     env_file:
       - ./backend/.env
     environment:
@@ -22,10 +22,10 @@ services:
       dockerfile: Dockerfile
       target: ${FRONTEND_STAGE:-dev}
     ports:
-      - "${FRONTEND_PORT:-5173}:${FRONTEND_INTERNAL_PORT:-5173}"
+      - "${FRONTEND_PORT:-5174}:${FRONTEND_INTERNAL_PORT:-5174}"
     volumes:
-      - ./frontend/src:/app/src       # 源码热重载
-      - ./frontend/public:/app/public # 静态资源热重载
+      - ./frontend:/app
+      - /app/node_modules
     environment:
       - VITE_BACKEND_URL=http://backend:8000
     depends_on:
