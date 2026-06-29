@@ -1,17 +1,49 @@
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.db
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.tox/
+.venv/
+venv/
 
-# Node.js
+# Node.js / frontend
 node_modules/
 dist/
+.vite/
+.npm/
+.pnpm-store/
+frontend/tsconfig.app.tsbuildinfo
+frontend/tsconfig.node.tsbuildinfo
 
-# 环境变量（含密钥，通过 env_file 注入）
+# Environment
 .env
+.env.*
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
 
-# IDE
+# Backend runtime
+*.db
+*.sqlite
+*.sqlite3
+backend/ai_health_mall.db
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
+backend/logs/
+backend/tmp/
+
+# IDE / editor
 .idea/
 .vscode/
 *.swp
@@ -21,19 +53,16 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Git
-.git/
-.gitignore
-
-# Docker
-Dockerfile*
-.dockerignore
-docker-compose*
-node_modules/
-
-# gstack
-.gstack/
+# Local tool caches
 .claude/
+.gstack/
+backend/.gstack/
+frontend/.gstack/
+.playwright-mcp/
 
-# 文档
-*.md
+# Git metadata
+.git/
+
+# Docker build context noise
+Dockerfile*
+docker-compose*.yml

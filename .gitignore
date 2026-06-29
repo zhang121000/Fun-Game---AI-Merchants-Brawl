@@ -1,17 +1,49 @@
-# 环境变量（含 API Key）
+# Environment
 .env
+.env.*
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
 
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.db
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.tox/
+.venv/
+venv/
 
-# Node.js
+# Backend runtime
+*.db
+*.sqlite
+*.sqlite3
+backend/ai_health_mall.db
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
+backend/logs/
+backend/tmp/
+
+# Node.js / frontend
 node_modules/
 dist/
+.vite/
+.npm/
+.pnpm-store/
+frontend/tsconfig.app.tsbuildinfo
+frontend/tsconfig.node.tsbuildinfo
 
-# IDE
+# IDE / editor
 .idea/
 .vscode/
 *.swp
@@ -21,14 +53,17 @@ dist/
 .DS_Store
 Thumbs.db
 
-# 本地配置
-.claude/settings.local.json
-
-# gstack 运行时数据
-.gstack/browse-audit.jsonl
+# Local tool caches
+.claude/
+.gstack/
 backend/.gstack/
 frontend/.gstack/
-.gstack/
+.playwright-mcp/
 
-# Git 工作树
+# Git worktrees
 .worktrees/
+
+# Misc
+*.log
+*.tmp
+*.temp
